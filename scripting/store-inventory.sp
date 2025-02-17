@@ -11,6 +11,15 @@ char g_menuCommands[32][32];
 Handle g_itemTypes;
 Handle g_itemTypeNameIndex;
 
+public Plugin myinfo =
+{
+	name        = "[Store] Inventory",
+	author      = "Alongub, KeithGDR",
+	description = "Inventory component for [Store]",
+	version     = STORE_VERSION,
+	url         = "https://github.com/KeithGDR/sm-store"
+};
+
 /**
  * Called before plugin is loaded.
  * 
@@ -34,15 +43,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	RegPluginLibrary("store-inventory");	
 	return APLRes_Success;
 }
-
-public Plugin myinfo =
-{
-	name        = "[Store] Inventory",
-	author      = "alongub",
-	description = "Inventory component for [Store]",
-	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
-};
 
 /**
  * Plugin is loading.

@@ -13,10 +13,10 @@ bool g_confirmItemRefund = true;
 public Plugin myinfo =
 {
 	name        = "[Store] Refund",
-	author      = "alongub",
+	author      = "Alongub, KeithGDR",
 	description = "Refund component for [Store]",
 	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
+	url         = "https://github.com/KeithGDR/sm-store"
 };
 
 /**

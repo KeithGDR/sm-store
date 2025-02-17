@@ -56,6 +56,15 @@ int g_itemCount = -1;
 Loadout g_loadouts[MAX_LOADOUTS];
 int g_loadoutCount = -1;
 
+public Plugin myinfo =
+{
+	name        = "[Store] Backend",
+	author      = "Alongub, KeithGDR",
+	description = "Backend component for [Store]",
+	version     = STORE_VERSION,
+	url         = "https://github.com/KeithGDR/sm-store"
+};
+
 /**
  * Called before plugin is loaded.
  * 
@@ -116,15 +125,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	RegPluginLibrary("store-backend");
 	return APLRes_Success;
 }
-
-public Plugin myinfo =
-{
-	name        = "[Store] Backend",
-	author      = "alongub",
-	description = "Backend component for [Store]",
-	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
-};
 
 /**
  * Plugin is loading.

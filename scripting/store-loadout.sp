@@ -22,6 +22,15 @@ Handle g_lastClientLoadout;
 
 bool g_databaseInitialized = false;
 
+public Plugin myinfo =
+{
+	name        = "[Store] Loadout",
+	author      = "Alongub, KeithGDR",
+	description = "Loadout component for [Store]",
+	version     = STORE_VERSION,
+	url         = "https://github.com/KeithGDR/sm-store"
+};
+
 /**
  * Called before plugin is loaded.
  * 
@@ -40,16 +49,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	RegPluginLibrary("store-loadout");	
 	return APLRes_Success;
 }
-
-public Plugin myinfo =
-{
-	name        = "[Store] Loadout",
-	author      = "alongub",
-	description = "Loadout component for [Store]",
-	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
-};
-
 
 /**
  * Plugin is loading.

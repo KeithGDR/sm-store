@@ -14,6 +14,15 @@ bool g_allowBuyingDuplicates = false;
 
 Handle g_buyItemForward;
 
+public Plugin myinfo =
+{
+	name        = "[Store] Shop",
+	author      = "Alongub, KeithGDR",
+	description = "Shop component for [Store]",
+	version     = STORE_VERSION,
+	url         = "https://github.com/KeithGDR/sm-store"
+};
+
 /**
  * Called before plugin is loaded.
  * 
@@ -32,15 +41,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	RegPluginLibrary("store-shop");	
 	return APLRes_Success;
 }
-
-public Plugin myinfo =
-{
-	name        = "[Store] Shop",
-	author      = "alongub",
-	description = "Shop component for [Store]",
-	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
-};
 
 /**
  * Plugin is loading.

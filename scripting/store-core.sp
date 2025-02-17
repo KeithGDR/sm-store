@@ -31,6 +31,15 @@ int g_firstConnectionCredits = 0;
 
 bool g_allPluginsLoaded = false;
 
+public Plugin myinfo =
+{
+	name        = "[Store] Core",
+	author      = "Alongub, KeithGDR",
+	description = "Core component for [Store]",
+	version     = STORE_VERSION,
+	url         = "https://github.com/KeithGDR/sm-store"
+};
+
 /**
  * Called before plugin is loaded.
  * 
@@ -50,15 +59,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	RegPluginLibrary("store");	
 	return APLRes_Success;
 }
-
-public Plugin myinfo =
-{
-	name        = "[Store] Core",
-	author      = "alongub",
-	description = "Core component for [Store]",
-	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
-};
 
 /**
  * Plugin is loading.

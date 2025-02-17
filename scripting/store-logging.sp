@@ -16,10 +16,10 @@ char g_current_date[20];
 public Plugin myinfo =
 {
 	name        = "[Store] Logging",
-	author      = "alongub",
+	author      = "Alongub, KeithGDR",
 	description = "Logging component for [Store]",
 	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
+	url         = "https://github.com/KeithGDR/sm-store"
 };
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)

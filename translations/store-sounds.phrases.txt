@@ -1,0 +1,14 @@
+"Phrases"
+{
+	"Wait until sound finishes"
+	{
+		"en"				"Wait until this song finishes first."
+	}
+
+	"Player has played a sound"
+	{
+		"#format"			"{1:s},{2:s}"
+		"en"				"{teamcolor}%s {default}has played {unusual}%s!"
+	}
+}
+

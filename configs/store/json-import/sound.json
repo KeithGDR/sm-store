@@ -1,0 +1,16 @@
+
+{
+    "type": "sound",
+    "categories": [
+        {
+            "display_name": "Sounds",
+            "description": "Play awesome sounds!",
+            "require_plugin": "sound",
+            "web_description": "",
+            "web_color": "",
+            "items": [
+
+            ]
+        }
+    ]
+}

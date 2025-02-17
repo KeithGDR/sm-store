@@ -53,10 +53,10 @@ char g_game[32];
 public Plugin myinfo =
 {
 	name        = "[Store] Gifting",
-	author      = "alongub",
+	author      = "Alongub, KeithGDR",
 	description = "Gifting component for [Store]",
 	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
+	url         = "https://github.com/KeithGDR/sm-store"
 };
 
 /**

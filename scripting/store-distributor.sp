@@ -34,10 +34,10 @@ int g_filterCount;
 public Plugin myinfo =
 {
 	name        = "[Store] Distributor",
-	author      = "alongub",
+	author      = "Alongub, KeithGDR",
 	description = "Distributor component for [Store]",
 	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
+	url         = "https://github.com/KeithGDR/sm-store"
 };
 
 /**
