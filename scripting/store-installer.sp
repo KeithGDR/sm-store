@@ -28,6 +28,7 @@ public void OnPluginStart()
 {
 	RegConsoleCmd("sm_install", Command_Install, "Starts the installation process for the Store system.");
 	RegConsoleCmd("sm_installitems", Command_InstallItems, "Install the item configs specifically.");
+	RegConsoleCmd("sm_installitemsconfig", Command_InstallItemsConfig, "Installs a specific item config.");
 }
 
 public Action Command_Install(int client, int args) {
@@ -60,7 +61,6 @@ public Action Command_InstallItems(int client, int args) {
 
 	if (db == null) {
 		PrintToChat(client, "%sThe database is currently disconnected, cancelling item installs...", STORE_PREFIX_CONSOLE);
-		EndInstallation(client);
 		return Plugin_Handled;
 	}
 
@@ -68,6 +68,53 @@ public Action Command_InstallItems(int client, int args) {
 	g_ItemsOnly[client] = true;
 
 	AskConfirmItemsData(client);
+	return Plugin_Handled;
+}
+
+public Action Command_InstallItemsConfig(int client, int args) {
+	if (!CheckCommandAccess(client, "store_install", ADMFLAG_ROOT)) {
+		ReplyToCommand(client, "%sYou do not have the correct privileges.", STORE_PREFIX_CONSOLE);
+		return Plugin_Handled;
+	}
+
+	if (g_Installing[client] || g_ItemsOnly[client]) {
+		return Plugin_Handled;
+	}
+
+	if (args == 0) {
+		char command[32];
+		GetCmdArg(0, command, sizeof(command));
+		PrintToChat(client, "%sUsage: %s <config-name>", STORE_PREFIX_CONSOLE, command);
+		return Plugin_Handled;
+	}
+
+	char name[64];
+	GetCmdArg(1, name, sizeof(name));
+
+	if (StrContains(name, ".json", false) != -1) {
+		ReplaceString(name, sizeof(name), ".json", "", false);
+	}
+
+	Handle db = Store_GetDatabase();
+
+	if (db == null) {
+		PrintToChat(client, "%sThe database is currently disconnected, cancelling item config install...", STORE_PREFIX_CONSOLE);
+		return Plugin_Handled;
+	}
+
+	g_DBCache[client] = db;
+	g_ItemsOnly[client] = true;
+
+	char config[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, config, sizeof(config), "configs/store/json-import/%s.json", name);
+
+	if (!FileExists(config)) {
+		PrintToChat(client, "%sError while parsing item config: Missing File: %s", STORE_PREFIX_CONSOLE, config);
+		EndInstallation(client);
+		return Plugin_Handled;
+	}
+
+	ImportItemsConfig(config, db, client);
 	return Plugin_Handled;
 }
 
@@ -306,7 +353,6 @@ public void OnSuccess2(Database db, any data, int numQueries, Handle[] results, 
 	JSON_Object categories = view_as<JSON_Object>(data);	
 	categories.Cleanup();
 	CloseHandle(categories);
-
 
 	char query[4096];
 	Transaction trans = SQL_CreateTransaction();

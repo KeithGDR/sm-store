@@ -7,10 +7,8 @@ More documentation and tutorials can be found at [our wiki](https://github.com/K
 
 ### Requirements
 
-* Working Source-based Game Server with SourceMod installed.
-* MySQL database, with a tool such as phpMyAdmin for database management. 
-* [SDKHooks](http://forums.alliedmods.net/showthread.php?t=106748) 
-* [SMJansson](https://forums.alliedmods.net/showthread.php?t=184604)
+* SourceMod setup on a dedicated server for a Source Engine game that it supports.
+* MySQL or MariaDB server.
 
 ### Features
 
