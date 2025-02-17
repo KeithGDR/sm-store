@@ -48,7 +48,10 @@ Use the `sm_install` command in-game as root admin and go through the steps of i
 ### Option B (Not Recommended)
 Then, navigate to `configs/store/sql-init-scripts` and execute `store.sql` in your database. For item modules you want to add, make sure the `.json` file is in the folder `/configs/store/json-import/` and execute the command `sm_installitems` in-game as root admin in order to install them.
 
+After the installation is complete, delete the `store-installer` plugin from your server and restart it.
+
 ([Tutorial](https://github.com/KeithGDR/sm-store/wiki/Installing-Store))
+
 ## License
 
 Copyright (C) 2013-2025  Alon Gubkin, Keith Warren
