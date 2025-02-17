@@ -1,11 +1,7 @@
 #pragma semicolon 1
 
 #include <sourcemod>
-#include <store/store-core>
-#include <store/store-backend>
-#include <store/store-inventory>
-#include <store/store-logging>
-#include <store/store-loadout>
+#include <store>
 
 new bool:g_hideEmptyCategories = false;
 
@@ -145,7 +141,7 @@ public Action:Command_PrintItemTypes(client, args)
 		ResetPack(itemType);
 		new Handle:plugin = Handle:ReadPackCell(itemType);
 
-		SetPackPosition(itemType, 24);
+		SetPackPosition(itemType, DataPackPos:24);
 		decl String:typeName[32];
 		ReadPackString(itemType, typeName, sizeof(typeName));
 
@@ -405,9 +401,9 @@ public InventoryCategoryMenuSelectHandle(Handle:menu, MenuAction:action, client,
 			ResetPack(itemType);
 			
 			new Handle:plugin = Handle:ReadPackCell(itemType);
-			new callback = ReadPackCell(itemType);
+			Function callback = ReadPackFunction(itemType);
 		
-			Call_StartFunction(plugin, Function:callback);
+			Call_StartFunction(plugin, callback);
 			Call_PushCell(client);
 			Call_PushCell(id);
 			Call_PushCell(equipped);
@@ -511,7 +507,7 @@ public UseItemCallback(accountId, itemId, any:pack)
 *
 * @noreturn
 */
-RegisterItemType(const String:type[], Handle:plugin, Store_ItemUseCallback:useCallback, Store_ItemGetAttributesCallback:attrsCallback = Store_ItemGetAttributesCallback:0)
+RegisterItemType(const String:type[], Handle:plugin, Function useCallback, Function attrsCallback = INVALID_FUNCTION)
 {
 	if (g_itemTypes == INVALID_HANDLE)
 		g_itemTypes = CreateArray();
@@ -531,8 +527,8 @@ RegisterItemType(const String:type[], Handle:plugin, Store_ItemUseCallback:useCa
 
 	new Handle:itemType = CreateDataPack();
 	WritePackCell(itemType, _:plugin); // 0
-	WritePackCell(itemType, _:useCallback); // 8
-	WritePackCell(itemType, _:attrsCallback); // 16
+	WritePackFunction(itemType, useCallback); // 8
+	WritePackFunction(itemType, attrsCallback); // 16
 	WritePackString(itemType, type); // 24
 
 	new index = PushArrayCell(g_itemTypes, itemType);
@@ -554,7 +550,7 @@ public Native_RegisterItemType(Handle:plugin, params)
 	decl String:type[STORE_MAX_TYPE_LENGTH];
 	GetNativeString(1, type, sizeof(type));
 	
-	RegisterItemType(type, plugin, Store_ItemUseCallback:GetNativeCell(2), Store_ItemGetAttributesCallback:GetNativeCell(3));
+	RegisterItemType(type, plugin, GetNativeFunction(2), GetNativeFunction(3));
 }
 
 public Native_IsItemTypeRegistered(Handle:plugin, params)
@@ -589,14 +585,14 @@ public Native_CallItemAttrsCallback(Handle:plugin, params)
 
 	new Handle:callbackPlugin = Handle:ReadPackCell(pack);
 	
-	SetPackPosition(pack, 16);
+	SetPackPosition(pack, DataPackPos:16);
 
-	new callback = ReadPackCell(pack);
+	Function callback = ReadPackFunction(pack);
 
-	if (callback == 0)
+	if (callback == INVALID_FUNCTION)
 		return false;
 
-	Call_StartFunction(callbackPlugin, Function:callback);
+	Call_StartFunction(callbackPlugin, callback);
 	Call_PushString(name);
 	Call_PushString(attrs);
 	Call_Finish();	

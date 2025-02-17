@@ -1,11 +1,7 @@
 #pragma semicolon 1
 
 #include <sourcemod>
-#include <store/store-core>
-#include <store/store-backend>
-#include <store/store-logging>
-#include <store/store-inventory>
-#include <store/store-loadout>
+#include <store>
 
 new String:g_currencyName[64];
 new String:g_menuCommands[32][32];

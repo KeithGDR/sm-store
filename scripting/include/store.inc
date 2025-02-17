@@ -3,9 +3,13 @@
 #endif
 #define _store_included
 
-#include <store/store-core>
+#define STORE_VERSION "1.0.0"
+#define STORE_PREFIX "\x04[Store] \x01"
+
 #include <store/store-backend>
+#include <store/store-core>
 #include <store/store-inventory>
-#include <store/store-shop>
 #include <store/store-loadout>
 #include <store/store-logging>
+#include <store/store-shop>
+#include <store/store-utils>

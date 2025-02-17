@@ -1,23 +1,20 @@
 #pragma semicolon 1
 
 #include <sourcemod>
-#include <store/store-core>
-#include <store/store-logging>
-#include <store/store-backend>
+#include <store>
 
-#include <colors>
-#include <morecolors_store>
+#include <colorlib>
 
 #define MAX_MENU_ITEMS	32
 
-enum MenuItem
+enum struct MenuItem
 {
-	String:MenuItemDisplayName[32],
-	String:MenuItemDescription[128],
-	String:MenuItemValue[64],
-	Handle:MenuItemPlugin,
-	Store_MenuItemClickCallback:MenuItemCallback,
-	MenuItemOrder
+	char MenuItemDisplayName[32];
+	char MenuItemDescription[128];
+	char MenuItemValue[64];
+	Handle MenuItemPlugin;
+	Function MenuItemCallback;
+	int MenuItemOrder;
 }
 
 new String:g_currencyName[64];
@@ -26,7 +23,7 @@ new String:g_creditsCommand[32];
 
 new g_iMenuCommandCount;
 
-new g_menuItems[MAX_MENU_ITEMS + 1][MenuItem];
+MenuItem g_menuItems[MAX_MENU_ITEMS + 1];
 new g_menuItemCount = 0;
 
 new g_firstConnectionCredits = 0;
@@ -254,22 +251,22 @@ LoadConfig()
  *
  * @noreturn
  */ 
-AddMainMenuItem(const String:displayName[], const String:description[] = "", const String:value[] = "", Handle:plugin = INVALID_HANDLE, Store_MenuItemClickCallback:callback, order = 32)
+AddMainMenuItem(const String:displayName[], const String:description[] = "", const String:value[] = "", Handle:plugin = INVALID_HANDLE, Function callback, order = 32)
 {
 	new item;
 	
 	for (; item <= g_menuItemCount; item++)
 	{
-		if (item == g_menuItemCount || StrEqual(g_menuItems[item][MenuItemDisplayName], displayName))
+		if (item == g_menuItemCount || StrEqual(g_menuItems[item].MenuItemDisplayName, displayName))
 			break;
 	}
 	
-	strcopy(g_menuItems[item][MenuItemDisplayName], 32, displayName);
-	strcopy(g_menuItems[item][MenuItemDescription], 128, description);
-	strcopy(g_menuItems[item][MenuItemValue], 64, value);   
-	g_menuItems[item][MenuItemPlugin] = plugin;
-	g_menuItems[item][MenuItemCallback] = callback;
-	g_menuItems[item][MenuItemOrder] = order;
+	strcopy(g_menuItems[item].MenuItemDisplayName, 32, displayName);
+	strcopy(g_menuItems[item].MenuItemDescription, 128, description);
+	strcopy(g_menuItems[item].MenuItemValue, 64, value);   
+	g_menuItems[item].MenuItemPlugin = plugin;
+	g_menuItems[item].MenuItemCallback = callback;
+	g_menuItems[item].MenuItemOrder = order;
 
 	if (item == g_menuItemCount)
 		g_menuItemCount++;
@@ -291,7 +288,7 @@ SortMainMenuItems()
 	{
 		for (new y = 0; y < g_menuItemCount; y++) 
 		{
-			if (g_menuItems[x][MenuItemOrder] < g_menuItems[y][MenuItemOrder])
+			if (g_menuItems[x].MenuItemOrder < g_menuItems[y].MenuItemOrder)
 			{
 				g_menuItems[sortIndex] = g_menuItems[x];
 				g_menuItems[x] = g_menuItems[y];
@@ -326,9 +323,9 @@ public OnGetCreditsComplete(credits, any:serial)
 	for (new item = 0; item < g_menuItemCount; item++)
 	{
 		decl String:text[255];  
-		Format(text, sizeof(text), "%T\n%T", g_menuItems[item][MenuItemDisplayName], client, g_menuItems[item][MenuItemDescription], client);
+		Format(text, sizeof(text), "%T\n%T", g_menuItems[item].MenuItemDisplayName, client, g_menuItems[item].MenuItemDescription, client);
 				
-		AddMenuItem(menu, g_menuItems[item][MenuItemValue], text);
+		AddMenuItem(menu, g_menuItems[item].MenuItemValue, text);
 	}
 	
 	SetMenuExitButton(menu, true);
@@ -341,9 +338,9 @@ public MainMenuSelectHandle(Handle:menu, MenuAction:action, client, slot)
 	{
 		case MenuAction_Select:
 		{
-			Call_StartFunction(g_menuItems[slot][MenuItemPlugin], Function:g_menuItems[slot][MenuItemCallback]);
+			Call_StartFunction(g_menuItems[slot].MenuItemPlugin, Function:g_menuItems[slot].MenuItemCallback);
 			Call_PushCell(client);
-			Call_PushString(g_menuItems[slot][MenuItemValue]);
+			Call_PushString(g_menuItems[slot].MenuItemValue);
 			Call_Finish();
 		}
 		case MenuAction_End:
@@ -369,7 +366,7 @@ public Native_AddMainMenuItem(Handle:plugin, params)
 	decl String:value[64];
 	GetNativeString(3, value, sizeof(value));
 	
-	AddMainMenuItem(displayName, description, value, plugin, Store_MenuItemClickCallback:GetNativeCell(4), GetNativeCell(5));
+	AddMainMenuItem(displayName, description, value, plugin, GetNativeFunction(4), GetNativeCell(5));
 }
 
 public Native_GetCurrencyName(Handle:plugin, params)

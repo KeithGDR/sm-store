@@ -5,18 +5,18 @@
 
 #define MAX_FILTERS 128
 
-enum Filter
+enum struct Filter
 {
-	String:FilterMap[128],
-	FilterPlayerCount,
-	FilterFlags,
-	Float:FilterMultiplier,
-	Float:FilterMinimumMultiplier,
-	Float:FilterMaximumMultiplier,
-	FilterAddend,
-	FilterMinimumAddend,
-	FilterMaximumAddend,
-	FilterTeam
+	char FilterMap[128];
+	int FilterPlayerCount;
+	int FilterFlags;
+	float FilterMultiplier;
+	float FilterMinimumMultiplier;
+	float FilterMaximumMultiplier;
+	int FilterAddend;
+	int FilterMinimumAddend;
+	int FilterMaximumAddend;
+	int FilterTeam;
 }
 
 new String:g_currencyName[64];
@@ -27,7 +27,7 @@ new bool:g_enableMessagePerTick;
 new g_baseMinimum;
 new g_baseMaximum;
 
-new g_filters[MAX_FILTERS][Filter];
+Filter g_filters[MAX_FILTERS];
 new g_filterCount;
 
 public Plugin:myinfo =
@@ -90,24 +90,24 @@ LoadConfig()
 			{
 				do
 				{
-					g_filters[g_filterCount][FilterMultiplier] = KvGetFloat(kv, "multiplier", 1.0);
-					g_filters[g_filterCount][FilterMinimumMultiplier] = KvGetFloat(kv, "min_multiplier", 1.0);
-					g_filters[g_filterCount][FilterMaximumMultiplier] = KvGetFloat(kv, "max_multiplier", 1.0);
+					g_filters[g_filterCount].FilterMultiplier = KvGetFloat(kv, "multiplier", 1.0);
+					g_filters[g_filterCount].FilterMinimumMultiplier = KvGetFloat(kv, "min_multiplier", 1.0);
+					g_filters[g_filterCount].FilterMaximumMultiplier = KvGetFloat(kv, "max_multiplier", 1.0);
 
-					g_filters[g_filterCount][FilterAddend] = KvGetNum(kv, "addend");
-					g_filters[g_filterCount][FilterMinimumAddend] = KvGetNum(kv, "min_addend");
-					g_filters[g_filterCount][FilterMaximumAddend] = KvGetNum(kv, "max_addend");
+					g_filters[g_filterCount].FilterAddend = KvGetNum(kv, "addend");
+					g_filters[g_filterCount].FilterMinimumAddend = KvGetNum(kv, "min_addend");
+					g_filters[g_filterCount].FilterMaximumAddend = KvGetNum(kv, "max_addend");
 
-					g_filters[g_filterCount][FilterPlayerCount] = KvGetNum(kv, "player_count", 0);
-					g_filters[g_filterCount][FilterTeam] = KvGetNum(kv, "team", -1);
+					g_filters[g_filterCount].FilterPlayerCount = KvGetNum(kv, "player_count", 0);
+					g_filters[g_filterCount].FilterTeam = KvGetNum(kv, "team", -1);
                                        
 					decl String:flags[32];
 					KvGetString(kv, "flags", flags, sizeof(flags));
 
 					if (!StrEqual(flags, ""))
-						g_filters[g_filterCount][FilterFlags] = ReadFlagString(flags);
+						g_filters[g_filterCount].FilterFlags = ReadFlagString(flags);
 
-					KvGetString(kv, "map", g_filters[g_filterCount][FilterMap], 32);
+					KvGetString(kv, "map", g_filters[g_filterCount].FilterMap, 32);
 
 					g_filterCount++;
 				} while (KvGotoNextKey(kv));
@@ -157,16 +157,16 @@ Calculate(client, const String:map[], clientCount)
 
 	for (new filter = 0; filter < g_filterCount; filter++)
 	{
-		if ((g_filters[filter][FilterPlayerCount] == 0 || clientCount >= g_filters[filter][FilterPlayerCount]) && 
-			(StrEqual(g_filters[filter][FilterMap], "") || StrEqual(g_filters[filter][FilterMap], map)) && 
-			(g_filters[filter][FilterFlags] == 0 || HasPermission(client, g_filters[filter][FilterFlags])) &&
-			(g_filters[filter][FilterTeam] == -1 || g_filters[filter][FilterTeam] == GetClientTeam(client)))
+		if ((g_filters[filter].FilterPlayerCount == 0 || clientCount >= g_filters[filter].FilterPlayerCount) && 
+			(StrEqual(g_filters[filter].FilterMap, "") || StrEqual(g_filters[filter].FilterMap, map)) && 
+			(g_filters[filter].FilterFlags == 0 || HasPermission(client, g_filters[filter].FilterFlags)) &&
+			(g_filters[filter].FilterTeam == -1 || g_filters[filter].FilterTeam == GetClientTeam(client)))
 		{
-			min = RoundToZero(min * g_filters[filter][FilterMultiplier] * g_filters[filter][FilterMinimumMultiplier]) 
-					+ g_filters[filter][FilterAddend] + g_filters[filter][FilterMinimumAddend];
+			min = RoundToZero(min * g_filters[filter].FilterMultiplier * g_filters[filter].FilterMinimumMultiplier) 
+					+ g_filters[filter].FilterAddend + g_filters[filter].FilterMinimumAddend;
 
-			max = RoundToZero(max * g_filters[filter][FilterMultiplier] * g_filters[filter][FilterMaximumMultiplier])
-					+ g_filters[filter][FilterAddend] + g_filters[filter][FilterMaximumAddend];
+			max = RoundToZero(max * g_filters[filter].FilterMultiplier * g_filters[filter].FilterMaximumMultiplier)
+					+ g_filters[filter].FilterAddend + g_filters[filter].FilterMaximumAddend;
 		}
 	}
 

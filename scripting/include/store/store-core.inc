@@ -3,12 +3,8 @@
 #endif
 #define _store_core_included
 
-#define STORE_VERSION "1.2-beta"
-#define STORE_PREFIX "\x04[Store] \x01"
-
-funcenum Store_MenuItemClickCallback
-{
-	public(client, const String:value[])
+typeset Store_MenuItemClickCallback {
+	function void (int client, const char[] value);
 }
 
 /**
