@@ -31,7 +31,7 @@ typedef Store_EquipItemCallback = function void(int accountId, int itemId, int l
 typedef Store_UseItemCallback = function void(int accountId, int itemId, any data);
 typedef Store_GetUserItemCountCallback = function void(int count, any data);
 
-forward Store_OnDatabaseInitialized();
+forward void Store_OnDatabaseInitialized();
 
 forward Store_OnReloadItems();
 forward Store_OnReloadItemsPost();

@@ -1,17 +1,18 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <store>
 
 #define PLUGIN_NAME_RESERVED_LENGTH 33
 
-static Handle:g_log_file = INVALID_HANDLE;
-static const String:g_log_level_names[][] = { "     ", "ERROR", "WARN ", "INFO ", "DEBUG", "TRACE" };
-static Store_LogLevel:g_log_level = Store_LogLevelNone;
-static Store_LogLevel:g_log_flush_level = Store_LogLevelNone;
-static bool:g_log_errors_to_SM = false;
-static String:g_current_date[20];
+Handle g_log_file = INVALID_HANDLE;
+char g_log_level_names[][] = { "     ", "ERROR", "WARN ", "INFO ", "DEBUG", "TRACE" };
+Store_LogLevel g_log_level = Store_LogLevelNone;
+Store_LogLevel g_log_flush_level = Store_LogLevelNone;
+bool g_log_errors_to_SM = false;
+char g_current_date[20];
 
-public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max) 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	CreateNative("Store_GetLogLevel", Store_GetLogLevel_);
 	CreateNative("Store_Log",         Store_Log_);
@@ -26,7 +27,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	return APLRes_Success;
 }
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name        = "[Store] Logging",
 	author      = "alongub",
@@ -35,7 +36,7 @@ public Plugin:myinfo =
 	url         = "https://github.com/alongubkin/store"
 };
 
-public OnPluginStart() 
+public void OnPluginStart() 
 {
 	LoadConfig();
 	FormatTime(g_current_date, sizeof(g_current_date), "%Y-%m-%d", GetTime());
@@ -44,11 +45,11 @@ public OnPluginStart()
 		CreateLogFileOrTurnOffLogging();
 }
 
-LoadConfig() 
+void LoadConfig() 
 {
-	new Handle:kv = CreateKeyValues("root");
+	Handle kv = CreateKeyValues("root");
     
-	decl String:path[PLATFORM_MAX_PATH];
+	char path[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, path, sizeof(path), "configs/store/logging.cfg");
     
 	if (!FileToKeyValues(kv, path))
@@ -57,22 +58,22 @@ LoadConfig()
 		SetFailState("Can't read config file %s", path);
 	}
 
-	g_log_level = Store_LogLevel:KvGetNum(kv, "log_level", 2);
-	g_log_flush_level = Store_LogLevel:KvGetNum(kv, "log_flush_level", 2);
+	g_log_level = view_as<Store_LogLevel>(KvGetNum(kv, "log_level", 2));
+	g_log_flush_level = view_as<Store_LogLevel>(KvGetNum(kv, "log_flush_level", 2));
 	g_log_errors_to_SM = (KvGetNum(kv, "log_errors_to_SM", 1) > 0);
 
 	CloseHandle(kv);
 }
 
-public OnPluginEnd() 
+public void OnPluginEnd() 
 {
 	if (g_log_file != INVALID_HANDLE)
 		CloseLogFile();
 }
 
-public Action:OnCheckDate(Handle:timer)
+public Action OnCheckDate(Handle timer)
 {
-	decl String:new_date[20];
+	char new_date[20];
 	FormatTime(new_date, sizeof(new_date), "%Y-%m-%d", GetTime());
     
 	if (g_log_level > Store_LogLevelNone && !StrEqual(new_date, g_current_date)) 
@@ -87,9 +88,11 @@ public Action:OnCheckDate(Handle:timer)
         
 		CreateLogFileOrTurnOffLogging();
 	}
+
+	return Plugin_Continue;
 }
 
-CloseLogFile() 
+void CloseLogFile() 
 {
 	WriteMessageToLog(INVALID_HANDLE, Store_LogLevelInfo, "Logging stopped");
 	FlushFile(g_log_file);
@@ -97,10 +100,10 @@ CloseLogFile()
 	g_log_file = INVALID_HANDLE;
 }
 
-bool:CreateLogFileOrTurnOffLogging()
+bool CreateLogFileOrTurnOffLogging()
 {
-	decl String:filename[128];
-	new pos = BuildPath(Path_SM, filename, sizeof(filename), "logs/");
+	char filename[128];
+	int pos = BuildPath(Path_SM, filename, sizeof(filename), "logs/");
 	FormatTime(filename[pos], sizeof(filename)-pos, "store_%Y-%m-%d.log", GetTime());
     
 	if ((g_log_file = OpenFile(filename, "a")) == INVALID_HANDLE) 
@@ -116,17 +119,17 @@ bool:CreateLogFileOrTurnOffLogging()
 	}
 }
 
-public Store_GetLogLevel_(Handle:plugin, num_params) 
+public int Store_GetLogLevel_(Handle plugin, int num_params) 
 {
-	return _:g_log_level;
+	return view_as<int>(g_log_level);
 }
 
-public Store_Log_(Handle:plugin, num_params) 
+public void Store_Log_(Handle plugin, int num_params) 
 {
-	new Store_LogLevel:log_level = Store_LogLevel:GetNativeCell(1);
+	Store_LogLevel log_level = view_as<Store_LogLevel>(GetNativeCell(1));
 	if (g_log_level >= log_level) 
     {
-		decl String:message[10000], written;
+		char message[10000], written;
 		FormatNativeString(0, 2, 3, sizeof(message), written, message);
         
 		if (g_log_file != INVALID_HANDLE)
@@ -140,11 +143,11 @@ public Store_Log_(Handle:plugin, num_params)
 	}
 }
 
-public Store_LogError_(Handle:plugin, num_params) 
+public void Store_LogError_(Handle plugin, int num_params) 
 {
 	if (g_log_level >= Store_LogLevelError) 
     {
-		decl String:message[10000], written;
+		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
         
 		if (g_log_file != INVALID_HANDLE)
@@ -160,76 +163,76 @@ public Store_LogError_(Handle:plugin, num_params)
 	}
 }
 
-public Store_LogWarning_(Handle:plugin, num_params) 
+public void Store_LogWarning_(Handle plugin, int num_params) 
 {
 	if (g_log_level >= Store_LogLevelWarning && g_log_file != INVALID_HANDLE) 
     {
-		decl String:message[10000], written;
+		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
 		WriteMessageToLog(plugin, Store_LogLevelWarning, message);
 	}
 }
 
-public Store_LogInfo_(Handle:plugin, num_params) 
+public void Store_LogInfo_(Handle plugin, int num_params) 
 {
 	if (g_log_level >= Store_LogLevelInfo && g_log_file != INVALID_HANDLE) 
     {
-		decl String:message[10000], written;
+		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
 		WriteMessageToLog(plugin, Store_LogLevelInfo, message);
 	}
 }
 
-public Store_LogDebug_(Handle:plugin, num_params) 
+public void Store_LogDebug_(Handle plugin, int num_params) 
 {
 	if (g_log_level >= Store_LogLevelDebug && g_log_file != INVALID_HANDLE) 
     {
-		decl String:message[10000], written;
+		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
 		WriteMessageToLog(plugin, Store_LogLevelDebug, message);
 	}
 }
 
-public Store_LogTrace_(Handle:plugin, num_params) 
+public void Store_LogTrace_(Handle plugin, int num_params) 
 {
 	if (g_log_level >= Store_LogLevelTrace && g_log_file != INVALID_HANDLE) 
     {
-		decl String:message[10000], written;
+		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
 		WriteMessageToLog(plugin, Store_LogLevelTrace, message);
 	}
 }
 
-WriteMessageToLog(Handle:plugin, Store_LogLevel:log_level, const String:message[], bool:force_flush=false) 
+void WriteMessageToLog(Handle plugin, Store_LogLevel log_level, const char[] message, bool force_flush = false) 
 {
-	decl String:log_line[10000];
-	PrepareLogLine(plugin, log_level, message, log_line);
+	char log_line[10000];
+	PrepareLogLine(plugin, log_level, message, log_line, sizeof(log_line));
 	WriteFileString(g_log_file, log_line, false);
     
 	if (log_level <= g_log_flush_level || force_flush)
 		FlushFile(g_log_file);
 }
 
-PrepareLogLine(Handle:plugin, Store_LogLevel:log_level, const String:message[], String:log_line[10000]) 
+void PrepareLogLine(Handle plugin, Store_LogLevel log_level, const char[] message, char[] log_line, int size) 
 {
-	decl String:plugin_name[100];
+	char plugin_name[100];
 	GetPluginFilename(plugin, plugin_name, sizeof(plugin_name)-1);
 	// Make windows consistent with unix
 	ReplaceString(plugin_name, sizeof(plugin_name), "\\", "/");
-	new name_end = strlen(plugin_name);
+	int name_end = size;
 	plugin_name[name_end++] = ']';
-	for (new end=PLUGIN_NAME_RESERVED_LENGTH-1; name_end<end; ++name_end)
+	for (int end=PLUGIN_NAME_RESERVED_LENGTH-1; name_end<end; ++name_end)
 		plugin_name[name_end] = ' ';
 	plugin_name[name_end++] = 0;
-	FormatTime(log_line, sizeof(log_line), "%Y-%m-%d %H:%M:%S [", GetTime());
-	new pos = strlen(log_line);
-	pos += strcopy(log_line[pos], sizeof(log_line)-pos, plugin_name);
+	FormatTime(log_line, size, "%Y-%m-%d %H:%M:%S [", GetTime());
+	int pos = strlen(log_line);
+	pos += strcopy(log_line[pos], size-pos, plugin_name);
 	log_line[pos++] = ' ';
-	pos += strcopy(log_line[pos], sizeof(log_line)-pos-5, g_log_level_names[log_level]);
+	pos += strcopy(log_line[pos], size-pos-5, g_log_level_names[log_level]);
 	log_line[pos++] = ' ';
 	log_line[pos++] = '|';
 	log_line[pos++] = ' ';
-	pos += strcopy(log_line[pos], sizeof(log_line)-pos-2, message);
+	pos += strcopy(log_line[pos], size-pos-2, message);
 	log_line[pos++] = '\n';
 	log_line[pos++] = 0;
 }

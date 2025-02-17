@@ -1,4 +1,5 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <store>
@@ -19,18 +20,18 @@ enum struct Filter
 	int FilterTeam;
 }
 
-new String:g_currencyName[64];
+char g_currencyName[64];
 
-new Float:g_timeInSeconds;
-new bool:g_enableMessagePerTick;
+float g_timeInSeconds;
+bool g_enableMessagePerTick;
 
-new g_baseMinimum;
-new g_baseMaximum;
+int g_baseMinimum;
+int g_baseMaximum;
 
 Filter g_filters[MAX_FILTERS];
-new g_filterCount;
+int g_filterCount;
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name        = "[Store] Distributor",
 	author      = "alongub",
@@ -42,7 +43,7 @@ public Plugin:myinfo =
 /**
  * Plugin is loading.
  */
-public OnPluginStart() 
+public void OnPluginStart() 
 {
 	LoadConfig();
 	LoadTranslations("store.phrases");
@@ -53,7 +54,7 @@ public OnPluginStart()
 /**
  * Configs just finished getting executed.
  */
-public OnAllPluginsLoaded()
+public void OnAllPluginsLoaded()
 {
 	Store_GetCurrencyName(g_currencyName, sizeof(g_currencyName));
 }
@@ -61,11 +62,11 @@ public OnAllPluginsLoaded()
 /**
  * Load plugin config.
  */
-LoadConfig() 
+void LoadConfig() 
 {
-	new Handle:kv = CreateKeyValues("root");
+	Handle kv = CreateKeyValues("root");
 	
-	decl String:path[PLATFORM_MAX_PATH];
+	char path[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, path, sizeof(path), "configs/store/distributor.cfg");
 	
 	if (!FileToKeyValues(kv, path)) 
@@ -75,7 +76,7 @@ LoadConfig()
 	}
 
 	g_timeInSeconds = KvGetFloat(kv, "time_per_distribute", 180.0);
-	g_enableMessagePerTick = bool:KvGetNum(kv, "enable_message_per_distribute", 0);
+	g_enableMessagePerTick = view_as<bool>(KvGetNum(kv, "enable_message_per_distribute", 0));
 
 	if (KvJumpToKey(kv, "distribution"))
 	{
@@ -101,7 +102,7 @@ LoadConfig()
 					g_filters[g_filterCount].FilterPlayerCount = KvGetNum(kv, "player_count", 0);
 					g_filters[g_filterCount].FilterTeam = KvGetNum(kv, "team", -1);
                                        
-					decl String:flags[32];
+					char flags[32];
 					KvGetString(kv, "flags", flags, sizeof(flags));
 
 					if (!StrEqual(flags, ""))
@@ -119,19 +120,19 @@ LoadConfig()
 }
 
 
-public Action:ForgivePoints(Handle:timer)
+public Action ForgivePoints(Handle timer)
 {
-	decl String:map[128];
+	char map[128];
 	GetCurrentMap(map, sizeof(map));
 
-	new clientCount = GetClientCount();
+	int clientCount = GetClientCount();
 
-	new accountIds[MaxClients];
-	new credits[MaxClients];
+	int[] accountIds = new int[MaxClients];
+	int[] credits = new int[MaxClients];
 
-	new count = 0;
+	int count = 0;
 	
-	for (new client = 1; client <= MaxClients; client++) 
+	for (int client = 1; client <= MaxClients; client++) 
 	{
 		if (IsClientInGame(client) && !IsFakeClient(client) && !IsClientObserver(client))
 		{
@@ -148,14 +149,15 @@ public Action:ForgivePoints(Handle:timer)
 	}
 
 	Store_GiveDifferentCreditsToUsers(accountIds, count, credits);
+	return Plugin_Continue;
 }
 
-Calculate(client, const String:map[], clientCount)
+int Calculate(int client, const char[] map, int clientCount)
 {
-	new min = g_baseMinimum;
-	new max = g_baseMaximum;
+	int min = g_baseMinimum;
+	int max = g_baseMaximum;
 
-	for (new filter = 0; filter < g_filterCount; filter++)
+	for (int filter = 0; filter < g_filterCount; filter++)
 	{
 		if ((g_filters[filter].FilterPlayerCount == 0 || clientCount >= g_filters[filter].FilterPlayerCount) && 
 			(StrEqual(g_filters[filter].FilterMap, "") || StrEqual(g_filters[filter].FilterMap, map)) && 
@@ -173,20 +175,20 @@ Calculate(client, const String:map[], clientCount)
 	return GetRandomInt(min, max);
 }
 
-bool:HasPermission(client, flags)
+bool HasPermission(int client, int flags)
 {
-	new AdminId:admin = GetUserAdmin(client);
+	AdminId admin = GetUserAdmin(client);
 	if (admin == INVALID_ADMIN_ID)
 		return false;
 
-	new count = 0, found = 0;
-	for (new i = 0; i <= 20; i++)
+	int count = 0, found = 0;
+	for (int i = 0; i <= 20; i++)
     {
 		if (flags & (1<<i))
 		{
 			count++;
 
-			if (GetAdminFlag(admin, AdminFlag:i))
+			if (GetAdminFlag(admin, view_as<AdminFlag>(i)))
 				found++;
 		}
 	}

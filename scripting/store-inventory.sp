@@ -1,14 +1,15 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <store>
 
-new bool:g_hideEmptyCategories = false;
+bool g_hideEmptyCategories = false;
 
-new String:g_menuCommands[32][32];
+char g_menuCommands[32][32];
 
-new Handle:g_itemTypes;
-new Handle:g_itemTypeNameIndex;
+Handle g_itemTypes;
+Handle g_itemTypeNameIndex;
 
 /**
  * Called before plugin is loaded.
@@ -20,7 +21,7 @@ new Handle:g_itemTypeNameIndex;
  *
  * @return          APLRes_Success for load success, APLRes_Failure or APLRes_SilentFailure otherwise.
  */
-public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	CreateNative("Store_OpenInventory", Native_OpenInventory);
 	CreateNative("Store_OpenInventoryCategory", Native_OpenInventoryCategory);
@@ -34,7 +35,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	return APLRes_Success;
 }
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name        = "[Store] Inventory",
 	author      = "alongub",
@@ -46,7 +47,7 @@ public Plugin:myinfo =
 /**
  * Plugin is loading.
  */
-public OnPluginStart()
+public void OnPluginStart()
 {
 	LoadConfig();
 
@@ -65,11 +66,11 @@ public OnPluginStart()
 /**
  * Load plugin config.
  */
-LoadConfig() 
+void LoadConfig() 
 {
-	new Handle:kv = CreateKeyValues("root");
+	Handle kv = CreateKeyValues("root");
 	
-	decl String:path[PLATFORM_MAX_PATH];
+	char path[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, path, sizeof(path), "configs/store/inventory.cfg");
 	
 	if (!FileToKeyValues(kv, path)) 
@@ -78,16 +79,16 @@ LoadConfig()
 		SetFailState("Can't read config file %s", path);
 	}
 
-	decl String:menuCommands[255];
+	char menuCommands[255];
 	KvGetString(kv, "inventory_commands", menuCommands, sizeof(menuCommands));
 	ExplodeString(menuCommands, " ", g_menuCommands, sizeof(g_menuCommands), sizeof(g_menuCommands[]));
 
-	g_hideEmptyCategories = bool:KvGetNum(kv, "hide_empty_categories", 0);
+	g_hideEmptyCategories = view_as<bool>(KvGetNum(kv, "hide_empty_categories", 0));
 		
 	CloseHandle(kv);
 }
 
-public OnMainMenuInventoryClick(client, const String:value[])
+public void OnMainMenuInventoryClick(int client, const char[] value)
 {
 	OpenInventory(client);
 }
@@ -101,16 +102,16 @@ public OnMainMenuInventoryClick(client, const String:value[])
  *
  * @return				Action to take.
  */
-public Action:Command_Say(client, const String:command[], args)
+public Action Command_Say(int client, const char[] command, int args)
 {
 	if (0 < client <= MaxClients && !IsClientInGame(client)) 
 		return Plugin_Continue;   
 	
-	decl String:text[256];
+	char text[256];
 	GetCmdArgString(text, sizeof(text));
 	StripQuotes(text);
 	
-	for (new index = 0; index < sizeof(g_menuCommands); index++) 
+	for (int index = 0; index < sizeof(g_menuCommands); index++) 
 	{
 		if (StrEqual(g_menuCommands[index], text))
 		{
@@ -126,28 +127,28 @@ public Action:Command_Say(client, const String:command[], args)
 	return Plugin_Continue;
 }
 
-public Action:Command_OpenInventory(client, args)
+public Action Command_OpenInventory(int client, int args)
 {
 	OpenInventory(client);
 	return Plugin_Handled;
 }
 
-public Action:Command_PrintItemTypes(client, args)
+public Action Command_PrintItemTypes(int client, int args)
 {
-	for (new itemTypeIndex = 0, size = GetArraySize(g_itemTypes); itemTypeIndex < size; itemTypeIndex++)
+	for (int itemTypeIndex = 0, size = GetArraySize(g_itemTypes); itemTypeIndex < size; itemTypeIndex++)
 	{
-		new Handle:itemType = Handle:GetArrayCell(g_itemTypes, itemTypeIndex);
+		Handle itemType = GetArrayCell(g_itemTypes, itemTypeIndex);
 		
 		ResetPack(itemType);
-		new Handle:plugin = Handle:ReadPackCell(itemType);
+		Handle plugin = ReadPackCell(itemType);
 
-		SetPackPosition(itemType, DataPackPos:24);
-		decl String:typeName[32];
+		SetPackPosition(itemType, view_as<DataPackPos>(24));
+		char typeName[32];
 		ReadPackString(itemType, typeName, sizeof(typeName));
 
 		ResetPack(itemType);
 
-		decl String:pluginName[32];
+		char pluginName[32];
 		GetPluginFilename(plugin, pluginName, sizeof(pluginName));
 
 		ReplyToCommand(client, " \"%s\" - %s", typeName, pluginName);			
@@ -163,7 +164,7 @@ public Action:Command_PrintItemTypes(client, args)
 *
 * @noreturn
 */
-OpenInventory(client)
+void OpenInventory(int client)
 {
 	if (client <= 0 || client > MaxClients)
 		return;
@@ -174,11 +175,11 @@ OpenInventory(client)
 	Store_GetCategories(GetCategoriesCallback, true, GetClientSerial(client));
 }
 
-new Handle:categories_menu[MAXPLAYERS+1];
+Handle categories_menu[MAXPLAYERS+1];
 
-public GetCategoriesCallback(ids[], count, any:serial)
+public void GetCategoriesCallback(int[] ids, int count, any serial)
 {	
-	new client = GetClientFromSerial(serial);
+	int client = GetClientFromSerial(serial);
 	
 	if (client == 0)
 		return;
@@ -186,21 +187,21 @@ public GetCategoriesCallback(ids[], count, any:serial)
 	categories_menu[client] = CreateMenu(InventoryMenuSelectHandle);
 	SetMenuTitle(categories_menu[client], "%T\n \n", "Inventory", client);
 		
-	for (new category = 0; category < count; category++)
+	for (int category = 0; category < count; category++)
 	{
-		decl String:requiredPlugin[STORE_MAX_REQUIREPLUGIN_LENGTH];
+		char requiredPlugin[STORE_MAX_REQUIREPLUGIN_LENGTH];
 		Store_GetCategoryPluginRequired(ids[category], requiredPlugin, sizeof(requiredPlugin));
 		
-		new typeIndex;
+		int typeIndex;
 		if (!StrEqual(requiredPlugin, "") && !GetTrieValue(g_itemTypeNameIndex, requiredPlugin, typeIndex))
 			continue;
 
-		new Handle:pack = CreateDataPack();
+		Handle pack = CreateDataPack();
 		WritePackCell(pack, GetClientSerial(client));
 		WritePackCell(pack, ids[category]);
 		WritePackCell(pack, count - category - 1);
 		
-		new Handle:filter = CreateTrie();
+		Handle filter = CreateTrie();
 		SetTrieValue(filter, "category_id", ids[category]);
 		SetTrieValue(filter, "flags", GetUserFlagBits(client));
 
@@ -208,17 +209,17 @@ public GetCategoriesCallback(ids[], count, any:serial)
 	}
 }
 
-public GetItemsForCategoryCallback(ids[], bool:equipped[], itemCount[], count, loadoutId, any:pack)
+public void GetItemsForCategoryCallback(int[] ids, bool[] equipped, int[] itemCount, int count, int loadoutId, any pack)
 {
 	ResetPack(pack);
 	
-	new serial = ReadPackCell(pack);
-	new categoryId = ReadPackCell(pack);
-	new left = ReadPackCell(pack);
+	int serial = ReadPackCell(pack);
+	int categoryId = ReadPackCell(pack);
+	int left = ReadPackCell(pack);
 	
 	CloseHandle(pack);
 	
-	new client = GetClientFromSerial(serial);
+	int client = GetClientFromSerial(serial);
 	
 	if (client <= 0)
 		return;
@@ -233,18 +234,18 @@ public GetItemsForCategoryCallback(ids[], bool:equipped[], itemCount[], count, l
 		return;
 	}
 
-	decl String:displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
+	char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 	Store_GetCategoryDisplayName(categoryId, displayName, sizeof(displayName));
 
 	//PrintToChatAll("%s %i %i %i", displayName, g_hideEmptyCategories, count, left);
 
-	//decl String:description[STORE_MAX_DESCRIPTION_LENGTH];
+	//char description[STORE_MAX_DESCRIPTION_LENGTH];
 	//Store_GetCategoryDescription(categoryId, description, sizeof(description));
 
-	//decl String:itemText[sizeof(displayName) + 1 + sizeof(description)];
+	//char itemText[sizeof(displayName) + 1 + sizeof(description)];
 	//Format(itemText, sizeof(itemText), "%s\n%s", displayName, description);
 	
-	decl String:itemValue[8];
+	char itemValue[8];
 	IntToString(categoryId, itemValue, sizeof(itemValue));
 	
 	AddMenuItem(categories_menu[client], itemValue, displayName);
@@ -256,11 +257,11 @@ public GetItemsForCategoryCallback(ids[], bool:equipped[], itemCount[], count, l
 	}
 }
 
-public InventoryMenuSelectHandle(Handle:menu, MenuAction:action, client, slot)
+public int InventoryMenuSelectHandle(Handle menu, MenuAction action, int client, int slot)
 {
 	if (action == MenuAction_Select)
 	{
-		new String:categoryIndex[64];
+		char categoryIndex[64];
 		
 		if (GetMenuItem(menu, slot, categoryIndex, sizeof(categoryIndex)))
 			OpenInventoryCategory(client, StringToInt(categoryIndex));
@@ -276,6 +277,8 @@ public InventoryMenuSelectHandle(Handle:menu, MenuAction:action, client, slot)
 	{
 		CloseHandle(menu);
 	}
+
+	return 0;
 }
 
 /**
@@ -286,31 +289,31 @@ public InventoryMenuSelectHandle(Handle:menu, MenuAction:action, client, slot)
 *
 * @noreturn
 */
-OpenInventoryCategory(client, categoryId, slot = 0)
+void OpenInventoryCategory(int client, int categoryId, int slot = 0)
 {
-	new Handle:pack = CreateDataPack();
+	Handle pack = CreateDataPack();
 	WritePackCell(pack, GetClientSerial(client));
 	WritePackCell(pack, categoryId);
 	WritePackCell(pack, slot);
 	
-	new Handle:filter = CreateTrie();
+	Handle filter = CreateTrie();
 	SetTrieValue(filter, "category_id", categoryId);
 	SetTrieValue(filter, "flags", GetUserFlagBits(client));
 
 	Store_GetUserItems(filter, GetSteamAccountID(client), Store_GetClientLoadout(client), GetUserItemsCallback, pack);
 }
 
-public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutId, any:pack)
+public void GetUserItemsCallback(int[] ids, bool[] equipped, int[] itemCount, int count, int loadoutId, any pack)
 {
 	ResetPack(pack);
 	
-	new serial = ReadPackCell(pack);
-	new categoryId = ReadPackCell(pack);
-	new slot = ReadPackCell(pack);
+	int serial = ReadPackCell(pack);
+	int categoryId = ReadPackCell(pack);
+	int slot = ReadPackCell(pack);
 	
 	CloseHandle(pack);
 	
-	new client = GetClientFromSerial(serial);
+	int client = GetClientFromSerial(serial);
 	
 	if (client == 0)
 		return;
@@ -323,19 +326,19 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 		return;
 	}
 	
-	decl String:categoryDisplayName[64];
+	char categoryDisplayName[64];
 	Store_GetCategoryDisplayName(categoryId, categoryDisplayName, sizeof(categoryDisplayName));
 		
-	new Handle:menu = CreateMenu(InventoryCategoryMenuSelectHandle);
+	Handle menu = CreateMenu(InventoryCategoryMenuSelectHandle);
 	SetMenuTitle(menu, "%T - %s\n \n", "Inventory", client, categoryDisplayName);
 	
-	for (new item = 0; item < count; item++)
+	for (int item = 0; item < count; item++)
 	{
 		// TODO: Option to display descriptions	
-		decl String:displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
+		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(ids[item], displayName, sizeof(displayName));
 		
-		new String:text[4 + sizeof(displayName) + 6];
+		char text[4 + sizeof(displayName) + 6];
 		
 		if (equipped[item])
 			strcopy(text, sizeof(text), "[E] ");
@@ -345,7 +348,7 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 		if (itemCount[item] > 1)
 			Format(text, sizeof(text), "%s (%d)", text, itemCount[item]);
 			
-		decl String:value[16];
+		char value[16];
 		Format(value, sizeof(value), "%b,%d", equipped[item], ids[item]);
 		
 		AddMenuItem(menu, value, text);    
@@ -359,30 +362,30 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 		DisplayMenuAtItem(menu, client, slot, 0);
 }
 
-public InventoryCategoryMenuSelectHandle(Handle:menu, MenuAction:action, client, slot)
+public int InventoryCategoryMenuSelectHandle(Handle menu, MenuAction action, int client, int slot)
 {
 	if (action == MenuAction_Select)
 	{
-		new String:value[16];
+		char value[16];
 
 		if (GetMenuItem(menu, slot, value, sizeof(value)))
 		{
-			decl String:buffers[2][16];
+			char buffers[2][16];
 			ExplodeString(value, ",", buffers, sizeof(buffers), sizeof(buffers[]));
 			
-			new bool:equipped = bool:StringToInt(buffers[0]);
-			new id = StringToInt(buffers[1]);
+			bool equipped = view_as<bool>(StringToInt(buffers[0]));
+			int id = StringToInt(buffers[1]);
 			
-			decl String:name[STORE_MAX_NAME_LENGTH];
+			char name[STORE_MAX_NAME_LENGTH];
 			Store_GetItemName(id, name, sizeof(name));
 			
-			decl String:type[STORE_MAX_TYPE_LENGTH];
+			char type[STORE_MAX_TYPE_LENGTH];
 			Store_GetItemType(id, type, sizeof(type));
 			
-			decl String:loadoutSlot[STORE_MAX_LOADOUTSLOT_LENGTH];
+			char loadoutSlot[STORE_MAX_LOADOUTSLOT_LENGTH];
 			Store_GetItemLoadoutSlot(id, loadoutSlot, sizeof(loadoutSlot));
 			
-			new itemTypeIndex = -1;
+			int itemTypeIndex = -1;
 			GetTrieValue(g_itemTypeNameIndex, type, itemTypeIndex);
 			
 			if (itemTypeIndex == -1)
@@ -392,15 +395,15 @@ public InventoryCategoryMenuSelectHandle(Handle:menu, MenuAction:action, client,
 				
 				OpenInventoryCategory(client, Store_GetItemCategory(id));
 				
-				return;
+				return 0;
 			}
 			
-			new Store_ItemUseAction:callbackValue = Store_DoNothing;
+			Store_ItemUseAction callbackValue = Store_DoNothing;
 			
-			new Handle:itemType = GetArrayCell(g_itemTypes, itemTypeIndex);
+			Handle itemType = GetArrayCell(g_itemTypes, itemTypeIndex);
 			ResetPack(itemType);
 			
-			new Handle:plugin = Handle:ReadPackCell(itemType);
+			Handle plugin = ReadPackCell(itemType);
 			Function callback = ReadPackFunction(itemType);
 		
 			Call_StartFunction(plugin, callback);
@@ -411,9 +414,9 @@ public InventoryCategoryMenuSelectHandle(Handle:menu, MenuAction:action, client,
 			
 			if (callbackValue != Store_DoNothing)
 			{
-				new auth = GetSteamAccountID(client);
+				int auth = GetSteamAccountID(client);
 					
-				new Handle:pack = CreateDataPack();
+				Handle pack = CreateDataPack();
 				WritePackCell(pack, GetClientSerial(client));
 				WritePackCell(pack, slot);
 
@@ -454,18 +457,20 @@ public InventoryCategoryMenuSelectHandle(Handle:menu, MenuAction:action, client,
 	{
 		CloseHandle(menu);
 	}
+
+	return 0;
 }
 
-public EquipItemCallback(accountId, itemId, loadoutId, any:pack)
+public void EquipItemCallback(int accountId, int itemId, int loadoutId, any pack)
 {
 	ResetPack(pack);
 	
-	new serial = ReadPackCell(pack);
+	int serial = ReadPackCell(pack);
 	// new slot = ReadPackCell(pack);
 	
 	CloseHandle(pack);
 	
-	new client = GetClientFromSerial(serial);
+	int client = GetClientFromSerial(serial);
 	
 	if (client == 0)
 		return;
@@ -473,16 +478,16 @@ public EquipItemCallback(accountId, itemId, loadoutId, any:pack)
 	OpenInventoryCategory(client, Store_GetItemCategory(itemId));
 }
 
-public UseItemCallback(accountId, itemId, any:pack)
+public void UseItemCallback(int accountId, int itemId, any pack)
 {
 	ResetPack(pack);
 	
-	new serial = ReadPackCell(pack);
+	int serial = ReadPackCell(pack);
 	// new slot = ReadPackCell(pack);
 	
 	CloseHandle(pack);
 	
-	new client = GetClientFromSerial(serial);
+	int client = GetClientFromSerial(serial);
 	
 	if (client == 0)
 		return;
@@ -507,7 +512,7 @@ public UseItemCallback(accountId, itemId, any:pack)
 *
 * @noreturn
 */
-RegisterItemType(const String:type[], Handle:plugin, Function useCallback, Function attrsCallback = INVALID_FUNCTION)
+void RegisterItemType(const char[] type, Handle plugin, Function useCallback, Function attrsCallback = INVALID_FUNCTION)
 {
 	if (g_itemTypes == INVALID_HANDLE)
 		g_itemTypes = CreateArray();
@@ -518,74 +523,74 @@ RegisterItemType(const String:type[], Handle:plugin, Function useCallback, Funct
 	}
 	else
 	{
-		new itemType;
+		int itemType;
 		if (GetTrieValue(g_itemTypeNameIndex, type, itemType))
 		{
-			CloseHandle(Handle:GetArrayCell(g_itemTypes, itemType));
+			CloseHandle(GetArrayCell(g_itemTypes, itemType));
 		}
 	}
 
-	new Handle:itemType = CreateDataPack();
-	WritePackCell(itemType, _:plugin); // 0
+	Handle itemType = CreateDataPack();
+	WritePackCell(itemType, plugin); // 0
 	WritePackFunction(itemType, useCallback); // 8
 	WritePackFunction(itemType, attrsCallback); // 16
 	WritePackString(itemType, type); // 24
 
-	new index = PushArrayCell(g_itemTypes, itemType);
+	int index = PushArrayCell(g_itemTypes, itemType);
 	SetTrieValue(g_itemTypeNameIndex, type, index);
 }
 
-public Native_OpenInventory(Handle:plugin, params)
+public void Native_OpenInventory(Handle plugin, int params)
 {       
 	OpenInventory(GetNativeCell(1));
 }
 
-public Native_OpenInventoryCategory(Handle:plugin, params)
+public void Native_OpenInventoryCategory(Handle plugin, int params)
 {       
 	OpenInventoryCategory(GetNativeCell(1), GetNativeCell(2));
 }
 
-public Native_RegisterItemType(Handle:plugin, params)
+public void Native_RegisterItemType(Handle plugin, int params)
 {
-	decl String:type[STORE_MAX_TYPE_LENGTH];
+	char type[STORE_MAX_TYPE_LENGTH];
 	GetNativeString(1, type, sizeof(type));
 	
 	RegisterItemType(type, plugin, GetNativeFunction(2), GetNativeFunction(3));
 }
 
-public Native_IsItemTypeRegistered(Handle:plugin, params)
+public int Native_IsItemTypeRegistered(Handle plugin, int params)
 {
-	decl String:type[STORE_MAX_TYPE_LENGTH];
+	char type[STORE_MAX_TYPE_LENGTH];
 	GetNativeString(1, type, sizeof(type));
 	
-	new typeIndex;
+	int typeIndex;
 	return GetTrieValue(g_itemTypeNameIndex, type, typeIndex);
 }
 
-public Native_CallItemAttrsCallback(Handle:plugin, params)
+public int Native_CallItemAttrsCallback(Handle plugin, int params)
 {
 	if (g_itemTypeNameIndex == INVALID_HANDLE)
 		return false;
 		
-	decl String:type[STORE_MAX_TYPE_LENGTH];
+	char type[STORE_MAX_TYPE_LENGTH];
 	GetNativeString(1, type, sizeof(type));
 
-	new typeIndex;
+	int typeIndex;
 	if (!GetTrieValue(g_itemTypeNameIndex, type, typeIndex))
 		return false;
 
-	decl String:name[STORE_MAX_NAME_LENGTH];
+	char name[STORE_MAX_NAME_LENGTH];
 	GetNativeString(2, name, sizeof(name));
 
-	decl String:attrs[STORE_MAX_ATTRIBUTES_LENGTH];
+	char attrs[STORE_MAX_ATTRIBUTES_LENGTH];
 	GetNativeString(3, attrs, sizeof(attrs));		
 
-	new Handle:pack = GetArrayCell(g_itemTypes, typeIndex);
+	Handle pack = GetArrayCell(g_itemTypes, typeIndex);
 	ResetPack(pack);
 
-	new Handle:callbackPlugin = Handle:ReadPackCell(pack);
+	Handle callbackPlugin = ReadPackCell(pack);
 	
-	SetPackPosition(pack, DataPackPos:16);
+	SetPackPosition(pack, view_as<DataPackPos>(16));
 
 	Function callback = ReadPackFunction(pack);
 
