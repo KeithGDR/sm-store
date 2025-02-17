@@ -106,7 +106,7 @@ public void OnGetPlayerTitle(int[] titles, int count, any serial)
 		int title = -1;
 		if (!GetTrieValue(g_titlesNameIndex, itemName, title))
 		{
-			PrintToChat(client, "%s%t", STORE_PREFIX, "No item attributes");
+			Store_PrintToChat(client, "%t", "No item attributes");
 			continue;
 		}
 		
@@ -151,7 +151,7 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
 		
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Unequipped item", displayName);
+		Store_PrintToChat(client, "%t", "Unequipped item", displayName);
 
 		return Store_UnequipItem;
 	}
@@ -160,7 +160,7 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 		int title = -1;
 		if (!GetTrieValue(g_titlesNameIndex, name, title))
 		{
-			PrintToChat(client, "%s%t", STORE_PREFIX, "No item attributes");
+			Store_PrintToChat(client, "%t", "No item attributes");
 			return Store_DoNothing;
 		}
 		
@@ -169,7 +169,7 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
 		
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Equipped item", displayName);
+		Store_PrintToChat(client, "%t", "Equipped item", displayName);
 
 		return Store_EquipItem;
 	}

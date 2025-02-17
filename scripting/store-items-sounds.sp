@@ -4,8 +4,8 @@
 #include <sourcemod>
 #include <sdktools>
 #include <json>
-#include <store>
 #include <colorlib>
+#include <store>
 #include <soundlib>
 
 #define MAX_SOUNDS 512
@@ -150,7 +150,7 @@ public Store_ItemUseAction OnSoundUse(int client, int itemId, bool equipped)
 
 	if (g_lastSoundPlayedTime != 0.0 && g_lastSound != 0 && GetGameTime() < g_lastSoundPlayedTime + g_sounds[g_lastSound].SoundLength + g_waitTime)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Wait until sound finishes");
+		Store_PrintToChat(client, "%t", STORE_PREFIX, "Wait until sound finishes");
 		return Store_DoNothing;
 	}
 
@@ -160,7 +160,7 @@ public Store_ItemUseAction OnSoundUse(int client, int itemId, bool equipped)
 	int sound = -1;
 	if (!GetTrieValue(g_soundsNameIndex, itemName, sound))
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No item attributes");
+		Store_PrintToChat(client, "%t", STORE_PREFIX, "No item attributes");
 		return Store_DoNothing;
 	}
 
@@ -172,11 +172,11 @@ public Store_ItemUseAction OnSoundUse(int client, int itemId, bool equipped)
 		char soundDisplayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, soundDisplayName, sizeof(soundDisplayName));
 
-		CPrintToChatAllEx(client, "%t", "Player has played a sound", playerName, soundDisplayName);
+		Store_PrintToChatAllEx(client, "%t", "Player has played a sound", playerName, soundDisplayName);
 	}
 	else
 	{
-		CPrintToChatAllEx(client, "{teamcolor}%s{default} %s!", playerName, g_sounds[sound].SoundText);
+		Store_PrintToChatAllEx(client, "{teamcolor}%s{default} %s!", playerName, g_sounds[sound].SoundText);
 	}
 
 	EmitSoundToAll(g_sounds[sound].SoundPath, SOUND_FROM_PLAYER, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_sounds[sound].SoundVolume);

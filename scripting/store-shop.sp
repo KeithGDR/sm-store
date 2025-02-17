@@ -2,8 +2,8 @@
 #pragma newdecls required
 
 #include <sourcemod>
-#include <store>
 #include <colorlib>
+#include <store>
 
 char g_currencyName[64];
 char g_menuCommands[32][32];
@@ -291,7 +291,7 @@ public void GetItemsCallback(int[] ids, int count, any pack)
 	
 	if (count == 0)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
+		Store_PrintToChat(client, "%t", "No items in this category");
 		OpenShop(client);
 		
 		return;
@@ -397,7 +397,7 @@ public void DoBuyItem_ItemCountCallBack(int count, any pack)
 	{
 		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Already purchased item", displayName);
+		Store_PrintToChat(client, "%t", "Already purchased item", displayName);
 	}
 }
 
@@ -478,11 +478,11 @@ public void OnBuyItemComplete(bool success, any pack)
 		char displayName[64];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
 
-		CPrintToChat(client, "%s%t", STORE_PREFIX, "Item Purchase Successful", displayName);
+		Store_PrintToChat(client, "%t", "Item Purchase Successful", displayName);
 	}
 	else
 	{
-		CPrintToChat(client, "%s%t", STORE_PREFIX, "Not enough credits to buy", g_currencyName);
+		Store_PrintToChat(client, "%t", "Not enough credits to buy", g_currencyName);
 	}
 
 	Call_StartForward(g_buyItemForward);

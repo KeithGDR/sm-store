@@ -3,6 +3,7 @@
 
 #include <sourcemod>
 #include <clientprefs>
+#include <colorlib>
 #include <store>
 
 #undef REQUIRE_EXTENSIONS

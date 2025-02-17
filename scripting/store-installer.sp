@@ -2,6 +2,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
+#include <colorlib>
 #include <store>
 #include <json>
 
@@ -60,7 +61,7 @@ public Action Command_InstallItems(int client, int args) {
 	Handle db = Store_GetDatabase();
 
 	if (db == null) {
-		PrintToChat(client, "%sThe database is currently disconnected, cancelling item installs...", STORE_PREFIX_CONSOLE);
+		Store_PrintToChat(client, "The database is currently disconnected, cancelling item installs...");
 		return Plugin_Handled;
 	}
 
@@ -84,7 +85,7 @@ public Action Command_InstallItemsConfig(int client, int args) {
 	if (args == 0) {
 		char command[32];
 		GetCmdArg(0, command, sizeof(command));
-		PrintToChat(client, "%sUsage: %s <config-name>", STORE_PREFIX_CONSOLE, command);
+		Store_PrintToChat(client, "Usage: %s <config-name>", command);
 		return Plugin_Handled;
 	}
 
@@ -98,7 +99,7 @@ public Action Command_InstallItemsConfig(int client, int args) {
 	Handle db = Store_GetDatabase();
 
 	if (db == null) {
-		PrintToChat(client, "%sThe database is currently disconnected, cancelling item config install...", STORE_PREFIX_CONSOLE);
+		Store_PrintToChat(client, "The database is currently disconnected, cancelling item config install...");
 		return Plugin_Handled;
 	}
 
@@ -109,7 +110,7 @@ public Action Command_InstallItemsConfig(int client, int args) {
 	BuildPath(Path_SM, config, sizeof(config), "configs/store/json-import/%s.json", name);
 
 	if (!FileExists(config)) {
-		PrintToChat(client, "%sError while parsing item config: Missing File: %s", STORE_PREFIX_CONSOLE, config);
+		Store_PrintToChat(client, "Error while parsing item config: Missing File: %s", config);
 		EndInstallation(client);
 		return Plugin_Handled;
 	}
@@ -119,12 +120,12 @@ public Action Command_InstallItemsConfig(int client, int args) {
 }
 
 void StartInstallation(int client = 0) {
-	PrintToChat(client, "%sStarting installation process...", STORE_PREFIX_CONSOLE);
+	Store_PrintToChat(client, "Starting installation process...");
 
 	Handle db = Store_GetDatabase();
 
 	if (db == null) {
-		PrintToChat(client, "%sThe database is currently disconnected, cancelling installation...", STORE_PREFIX_CONSOLE);
+		Store_PrintToChat(client, "The database is currently disconnected, cancelling installation...");
 		EndInstallation(client);
 		return;
 	}
@@ -140,7 +141,7 @@ public void OnCheckExistingInstall(Handle db, Handle results, const char[] error
 	int client = data;
 	
 	if (SQL_HasResultSet(results)) {
-		PrintToChat(client, "%sTables found, would you like to clear them? - (yes, no)", STORE_PREFIX_CONSOLE);
+		Store_PrintToChat(client, "Tables found, would you like to clear them? - (yes, no)");
 		g_ClearTables[client] = true;
 	} else {
 		CreateTables(db, client);
@@ -148,14 +149,14 @@ public void OnCheckExistingInstall(Handle db, Handle results, const char[] error
 }
 
 void CreateTables(Handle db, int client = 0) {
-	PrintToChat(client, "%sCreating tables...", STORE_PREFIX_CONSOLE);
+	Store_PrintToChat(client, "Creating tables...");
 
 	char filePath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, filePath, sizeof(filePath), "configs/store/sql-init-scripts/store.sql");
 
 	if (!FileExists(filePath))
 	{
-		PrintToChat(client, "%sError while creating tables: Can't find file: %s", STORE_PREFIX_CONSOLE, filePath);
+		Store_PrintToChat(client, "Error while creating tables: Can't find file: %s", filePath);
 		EndInstallation(client);
 		return;
 	}
@@ -164,7 +165,7 @@ void CreateTables(Handle db, int client = 0) {
 
 	if (file == null)
 	{
-		PrintToChat(client, "%sError while creating tables: Can't open file: %s", STORE_PREFIX_CONSOLE, filePath);
+		Store_PrintToChat(client, "Error while creating tables: Can't open file: %s", filePath);
 		EndInstallation(client);
 		return;
 	}
@@ -190,7 +191,7 @@ void CreateTables(Handle db, int client = 0) {
 
 	CloseHandle(file);
 
-	PrintToChat(client, "%sTables have been created.", STORE_PREFIX_CONSOLE);
+	Store_PrintToChat(client, "Tables have been created.");
 	AskConfirmItemsData(client);
 }
 
@@ -199,7 +200,7 @@ public void OnCreateTable(Handle db, Handle results, const char[] error, any dat
 }
 
 void AskConfirmItemsData(int client = 0) {
-	PrintToChat(client, "%sImport the items now? - (yes, no)", STORE_PREFIX_CONSOLE);
+	Store_PrintToChat(client, "Import the items now? - (yes, no)");
 	g_ImportItems[client] = true;
 }
 
@@ -230,7 +231,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 }
 
 void ClearTables(Handle db, int client = 0) {
-	PrintToChat(client, "%sClearing tables...", STORE_PREFIX_CONSOLE);
+	Store_PrintToChat(client, "Clearing tables...");
 
 	Transaction trans = SQL_CreateTransaction();
 	char query[512];
@@ -255,13 +256,13 @@ void ClearTables(Handle db, int client = 0) {
 
 public void OnSuccess(Database db, any data, int numQueries, Handle[] results, any[] queryData) {
 	int client = data;
-	PrintToChat(client, "%sTables have been cleared successfully.", STORE_PREFIX_CONSOLE);
+	Store_PrintToChat(client, "Tables have been cleared successfully.");
 	AskConfirmItemsData(client);
 }
 
 public void OnFailure(Database db, any data, int numQueries, const char[] error, int failIndex, any[] queryData) {
 	int client = data;
-	PrintToChat(client, "%sError while clearing table %i/%i: %s", STORE_PREFIX_CONSOLE, failIndex, numQueries, error);
+	PrintToChat(client, "Error while clearing table %i/%i: %s", failIndex, numQueries, error);
 	EndInstallation(client);
 }
 
@@ -273,7 +274,7 @@ void ImportItemsData(Handle db, int client = 0) {
 
 	if (dir == null)
 	{
-		PrintToChat(client, "%sError while importing items data: Can't find folder: %s", STORE_PREFIX_CONSOLE, file);
+		Store_PrintToChat(client, "Error while importing items data: Can't find folder: %s", file);
 		if (!g_ItemsOnly[client]) {
 			EndInstallation(client);
 		}
@@ -305,12 +306,12 @@ void ImportItemsConfig(const char[] config, Handle db, int client = 0) {
 	File file = OpenFile(config, "r");
 
 	if (!FileExists(config)) {
-		PrintToChat(client, "%sError while importing items config: Can't open file: %s", STORE_PREFIX_CONSOLE, config);
+		Store_PrintToChat(client, "Error while importing items config: Can't open file: %s", config);
 		return;
 	}
 
 	if (file == null) {
-		PrintToChat(client, "%sError while importing items config: Can't open file: %s", STORE_PREFIX_CONSOLE, config);
+		Store_PrintToChat(client, "Error while importing items config: Can't open file: %s", config);
 		return;
 	}
 
@@ -319,7 +320,7 @@ void ImportItemsConfig(const char[] config, Handle db, int client = 0) {
 	JSON_Object obj = json_read_from_file(config);
 
 	if (obj == null) {
-		PrintToChat(client, "%sError while importing items config: Corrupted JSON: %s", STORE_PREFIX_CONSOLE, config);
+		Store_PrintToChat(client, "Error while importing items config: Corrupted JSON: %s", config);
 		return;
 	}
 
@@ -420,10 +421,10 @@ public void OnFailure3(Database db, any data, int numQueries, const char[] error
 }
 
 void EndInstallation(int client = 0, bool success = false) {
-	PrintToChat(client, "%sInstall has been completed %s.", STORE_PREFIX_CONSOLE, success ? "successfully" : "unsuccessfully");
+	Store_PrintToChat(client, "Install has been completed %s.", success ? "successfully" : "unsuccessfully");
 
 	if (success) {
-		PrintToChat(client, "%sPlease restart your server.", STORE_PREFIX_CONSOLE);
+		Store_PrintToChat(client, "Please restart your server.");
 	}
 	
 	if (g_DBCache[client] != null) {
@@ -439,10 +440,10 @@ void EndInstallation(int client = 0, bool success = false) {
 }
 
 void EndItemInstalls(int client = 0, bool success = false) {
-	PrintToChat(client, "%sItem config installs has been completed %s.", STORE_PREFIX_CONSOLE, success ? "successfully" : "unsuccessfully");
+	Store_PrintToChat(client, "Item config installs has been completed %s.", success ? "successfully" : "unsuccessfully");
 
 	if (success) {
-		PrintToChat(client, "%sPlease restart your server.", STORE_PREFIX_CONSOLE);
+		Store_PrintToChat(client, "Please restart your server.");
 	}
 	
 	if (g_DBCache[client] != null) {

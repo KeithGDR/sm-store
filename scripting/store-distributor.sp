@@ -2,6 +2,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
+#include <colorlib>
 #include <store>
 
 #define MAX_FILTERS 128
@@ -141,7 +142,7 @@ public Action ForgivePoints(Handle timer)
 
 			if (g_enableMessagePerTick)
 			{
-				PrintToChat(client, "%s%t", STORE_PREFIX, "Received Credits", credits[count], g_currencyName);
+				Store_PrintToChat(client, "%t", "Received Credits", credits[count], g_currencyName);
 			}
 
 			count++;

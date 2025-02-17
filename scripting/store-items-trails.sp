@@ -4,6 +4,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <colorlib>
 #include <store>
 #include <json>
 
@@ -222,13 +223,13 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 	
 	if (!IsPlayerAlive(client))
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Equipped item apply next spawn");
+		Store_PrintToChat(client, "%t", "Equipped item apply next spawn");
 		return Store_EquipItem;
 	}
 
 	if (g_zombieReloaded && !ZR_IsClientHuman(client))
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Equipped item apply next spawn");	
+		Store_PrintToChat(client, "%t", "Equipped item apply next spawn");	
 		return Store_EquipItem;
 	}
 	
@@ -245,7 +246,7 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
 		
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Unequipped item", displayName);
+		Store_PrintToChat(client, "%t", "Unequipped item", displayName);
 
 		return Store_UnequipItem;
 	}
@@ -257,7 +258,7 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
 		
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Equipped item", displayName);
+		Store_PrintToChat(client, "%t", "Equipped item", displayName);
 
 		return Store_EquipItem;
 	}
@@ -376,7 +377,7 @@ bool Equip(int client, const char[] name)
 	int trail = -1;
 	if (!GetTrieValue(g_trailsNameIndex, name, trail))
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No item attributes");
+		Store_PrintToChat(client, "%t", "No item attributes");
 		return false;
 	}
 

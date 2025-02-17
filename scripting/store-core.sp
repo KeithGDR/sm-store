@@ -2,9 +2,9 @@
 #pragma newdecls required
 
 #include <sourcemod>
+#include <colorlib>
 #include <store>
 
-#include <colorlib>
 
 #define MAX_MENU_ITEMS	32
 
@@ -198,7 +198,7 @@ public Action Command_GiveCredits(int client, int args)
 			accountIds[count] = GetSteamAccountID(target_list[i]);
 			count++;
 
-			PrintToChat(target_list[i], "%s%t", STORE_PREFIX, "Received Credits", imoney, g_currencyName);
+			Store_PrintToChat(target_list[i], "%t", "Received Credits", imoney, g_currencyName);
 		}
 	}
 
@@ -208,7 +208,7 @@ public Action Command_GiveCredits(int client, int args)
 
 public void OnCommandGetCredits(int credits, any client)
 {
-	PrintToChat(client, "%s%t", STORE_PREFIX, "Store Menu Title", credits, g_currencyName);
+	Store_PrintToChat(client, "%t", "Store Menu Title", credits, g_currencyName);
 }
 
 /**

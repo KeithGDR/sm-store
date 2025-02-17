@@ -2,6 +2,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
+#include <colorlib>
 #include <store>
 
 #define PLUGIN_NAME_RESERVED_LENGTH 33

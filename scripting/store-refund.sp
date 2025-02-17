@@ -2,6 +2,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
+#include <colorlib>
 #include <store>
 
 char g_currencyName[64];
@@ -228,7 +229,7 @@ public void GetUserItemsCallback(int[] ids, bool[] equipped, int[] itemCount, in
 		
 	if (count == 0)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
+		Store_PrintToChat(client, "%t", "No items in this category");
 		OpenRefundMenu(client);
 		
 		return;
@@ -388,7 +389,7 @@ public void OnGiveCreditsComplete(int accountId, any pack)
 	char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 	Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
 		
-	PrintToChat(client, "%s%t", STORE_PREFIX, "Refund Message", displayName, credits, g_currencyName);
+	Store_PrintToChat(client, "%t", "Refund Message", displayName, credits, g_currencyName);
 
 	OpenRefundMenu(client);
 }

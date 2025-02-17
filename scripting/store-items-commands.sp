@@ -2,6 +2,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
+#include <colorlib>
 #include <store>
 #include <json>
 
@@ -90,7 +91,7 @@ public Store_ItemUseAction OnCommandItemUse(int client, int itemId, bool equippe
 	int commandItem = -1;
 	if (!GetTrieValue(g_commandItemsNameIndex, itemName, commandItem))
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No item attributes");
+		Store_PrintToChat(client, "%t", "No item attributes");
 		return Store_DoNothing;
 	}
 

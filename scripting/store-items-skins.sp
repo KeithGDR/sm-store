@@ -3,6 +3,7 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <colorlib>
 #include <store>
 #include <json>
 #include <smartdm>
@@ -122,7 +123,7 @@ public void OnGetPlayerSkin(int[] ids, int count, any serial)
 		int skin = -1;
 		if (!GetTrieValue(g_skinNameIndex, itemName, skin))
 		{
-			PrintToChat(client, "%s%t", STORE_PREFIX, "No item attributes");
+			Store_PrintToChat(client, "%t", "No item attributes");
 			continue;
 		}
 
@@ -194,6 +195,6 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 	if (equipped)
 		return Store_UnequipItem;
 	
-	PrintToChat(client, "%s%t", STORE_PREFIX, "Equipped item apply next spawn");
+	Store_PrintToChat(client, "%t", "Equipped item apply next spawn");
 	return Store_EquipItem;
 }

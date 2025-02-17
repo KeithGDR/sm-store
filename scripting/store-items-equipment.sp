@@ -5,6 +5,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <smartdm>
+#include <colorlib>
 #include <store>
 #include <json>
 
@@ -336,13 +337,13 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 	
 	if (!IsPlayerAlive(client))
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Must be alive to equip");
+		Store_PrintToChat(client, "%t", "Must be alive to equip");
 		return Store_DoNothing;
 	}
 	
 	if (g_zombieReloaded && !ZR_IsClientHuman(client))
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Must be human to equip");	
+		Store_PrintToChat(client, "%t", "Must be human to equip");	
 		return Store_DoNothing;
 	}
 	
@@ -365,7 +366,7 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
 		
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Unequipped item", displayName);
+		Store_PrintToChat(client, "%t", "Unequipped item", displayName);
 		return Store_UnequipItem;
 	}
 	else
@@ -376,7 +377,7 @@ public Store_ItemUseAction OnEquip(int client, int itemId, bool equipped)
 		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
 		
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Equipped item", displayName);
+		Store_PrintToChat(client, "%t", "Equipped item", displayName);
 		return Store_EquipItem;
 	}
 }
@@ -388,13 +389,13 @@ bool Equip(int client, int loadoutSlot, const char[] name)
 	int equipment = -1;
 	if (!GetTrieValue(g_equipmentNameIndex, name, equipment))
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No item attributes");
+		Store_PrintToChat(client, "%t", "No item attributes");
 		return false;
 	}
 	
 	if (!LookupAttachment(client, g_equipment[equipment].EquipmentAttachment)) 
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Player model unsupported");
+		Store_PrintToChat(client, "%t", "Player model unsupported");
 		return false;
 	}
 	

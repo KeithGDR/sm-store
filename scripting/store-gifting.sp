@@ -5,8 +5,8 @@
 #include <sdkhooks>
 #include <sdktools>
 #include <adminmenu>
-#include <store>
 #include <colorlib>
+#include <store>
 #include <smartdm>
 
 #define MAX_CREDIT_CHOICES 100
@@ -216,7 +216,7 @@ public void DropGetCreditsCallback(int credits, any pack)
 	}
 	else
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Not enough credits", g_currencyName);
+		Store_PrintToChat(client, "%t", "Not enough credits", g_currencyName);
 	}
 }
 
@@ -230,7 +230,7 @@ public void DropGiveCreditsCallback(int accountId, any pack)
 	char value[32];
 	Format(value, sizeof(value), "credits,%d", credits);
 
-	CPrintToChat(client, "%s%t", STORE_PREFIX, "Gift Credits Dropped", credits, g_currencyName);
+	Store_PrintToChat(client, "%t", "Gift Credits Dropped", credits, g_currencyName);
 
 	int present;
 	if((present = SpawnPresent(client, g_creditsModel)) != -1)
@@ -584,7 +584,7 @@ public void GetCreditsCallback(int credits, any pack)
 
 	if (giftCredits > credits)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Not enough credits", g_currencyName);
+		Store_PrintToChat(client, "%t", "Not enough credits", g_currencyName);
 	}
 	else
 	{
@@ -706,7 +706,7 @@ public void GetUserItemsCallback(int[] ids, bool[] equipped, int[] itemCount, in
 		
 	if (count == 0)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No items");	
+		Store_PrintToChat(client, "%t", "No items");	
 		return;
 	}
 	
@@ -851,7 +851,7 @@ public void DropItemCallback(int accountId, int itemId, any client)
 {
 	char displayName[64];
 	Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
-	CPrintToChat(client, "%s%t", STORE_PREFIX, "Gift Item Dropped", displayName);
+	Store_PrintToChat(client, "%t", "Gift Item Dropped", displayName);
 }
 
 void AskForPermission(int client, int giftTo, GiftType giftType, int value)
@@ -859,7 +859,7 @@ void AskForPermission(int client, int giftTo, GiftType giftType, int value)
 	char giftToName[32];
 	GetClientName(giftTo, giftToName, sizeof(giftToName));
 
-	CPrintToChatEx(client, giftTo, "%s%T", STORE_PREFIX, "Gift Waiting to accept", client, giftToName);
+	Store_PrintToChatEx(client, giftTo, "%T", "Gift Waiting to accept", client, giftToName);
 
 	char clientName[32];
 	GetClientName(client, clientName, sizeof(clientName));	
@@ -871,7 +871,7 @@ void AskForPermission(int client, int giftTo, GiftType giftType, int value)
 	else if (giftType == GiftType_Item)
 		Store_GetItemDisplayName(value, what, sizeof(what));	
 
-	CPrintToChatEx(giftTo, client, "%s%T", STORE_PREFIX, "Gift Request Accept", client, clientName, what);
+	Store_PrintToChatEx(giftTo, client, "%T", "Gift Request Accept", client, clientName, what);
 
 	g_giftRequests[giftTo].GiftRequestActive = true;
 	g_giftRequests[giftTo].GiftRequestSender = client;
@@ -925,12 +925,12 @@ public void GiveCreditsCallback(int accountId, any pack)
 	char receiverName[32];
 	GetClientName(to, receiverName, sizeof(receiverName));	
 
-	CPrintToChatEx(from, to, "%s%t", STORE_PREFIX, "Gift accepted - sender", receiverName);
+	Store_PrintToChatEx(from, to, "%t", "Gift accepted - sender", receiverName);
 
 	char senderName[32];
 	GetClientName(from, senderName, sizeof(senderName));
 
-	CPrintToChatEx(to, from, "%s%t", STORE_PREFIX, "Gift accepted - receiver", senderName);
+	Store_PrintToChatEx(to, from, "%t", "Gift accepted - receiver", senderName);
 }
 
 void GiftItem(int from, int to, int itemId)
@@ -1044,12 +1044,12 @@ public void PickupGiveCallback(int accountId, any pack)
 
 	if (StrEqual(itemType, "credits"))
 	{
-		CPrintToChat(client, "%s%t", STORE_PREFIX, "Gift Credits Found", value, g_currencyName); //translate
+		Store_PrintToChat(client, "%t", "Gift Credits Found", value, g_currencyName); //translate
 	}
 	else if (StrEqual(itemType, "item"))
 	{
 		char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(value, displayName, sizeof(displayName));
-		CPrintToChat(client, "%s%t", STORE_PREFIX, "Gift Item Found", displayName); //translate
+		Store_PrintToChat(client, "%t", "Gift Item Found", displayName); //translate
 	}
 }

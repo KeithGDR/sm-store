@@ -2,6 +2,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
+#include <colorlib>
 #include <store>
 
 bool g_hideEmptyCategories = false;
@@ -237,7 +238,7 @@ public void GetItemsForCategoryCallback(int[] ids, bool[] equipped, int[] itemCo
 	char displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 	Store_GetCategoryDisplayName(categoryId, displayName, sizeof(displayName));
 
-	//PrintToChatAll("%s %i %i %i", displayName, g_hideEmptyCategories, count, left);
+	//Store_PrintToChatAll("%s %i %i %i", displayName, g_hideEmptyCategories, count, left);
 
 	//char description[STORE_MAX_DESCRIPTION_LENGTH];
 	//Store_GetCategoryDescription(categoryId, description, sizeof(description));
@@ -320,7 +321,7 @@ public void GetUserItemsCallback(int[] ids, bool[] equipped, int[] itemCount, in
 		
 	if (count == 0)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
+		Store_PrintToChat(client, "%t", "No items in this category");
 		OpenInventory(client);
 		
 		return;
@@ -390,7 +391,7 @@ public int InventoryCategoryMenuSelectHandle(Handle menu, MenuAction action, int
 			
 			if (itemTypeIndex == -1)
 			{
-				PrintToChat(client, "%s%t", STORE_PREFIX, "Item type not registered", type);
+				Store_PrintToChat(client, "%t", "Item type not registered", type);
 				Store_LogWarning("The item type '%s' wasn't registered by any plugin.", type);
 				
 				OpenInventoryCategory(client, Store_GetItemCategory(id));
