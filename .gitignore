@@ -1,10 +1,4 @@
-plugins/
-*.smx
-*.zip
-
-*.sublime-project
-*.sublime-workspace
-*.sublime-build
+.vscode/
 
 ##DEFAULTS##
 
