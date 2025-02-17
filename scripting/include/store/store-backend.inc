@@ -764,6 +764,13 @@ native void Store_GetEquippedItemsByType(int accountId, const char[] type, int l
  */
 native void Store_ReloadItemCache();
 
+/**
+ * Retrieves a cloned handle of the SQL connection.
+ *
+ * @return SQL connection, null if not connected.
+ */
+native Handle Store_GetDatabase();
+
 public SharedPlugin __pl_store_backend =
 {
 	name = "store-backend",
@@ -812,5 +819,6 @@ public void __pl_store_backend_SetNTVOptional()
 	MarkNativeAsOptional("Store_GetEquippedItemsByType");
 
 	MarkNativeAsOptional("Store_ReloadItemCache");
+	MarkNativeAsOptional("Store_GetDatabase");
 }
 #endif

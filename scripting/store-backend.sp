@@ -121,6 +121,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_GetEquippedItemsByType", Native_GetEquippedItemsByType);
 	
 	CreateNative("Store_ReloadItemCache", Native_ReloadItemCache);
+	CreateNative("Store_GetDatabase", Native_GetDatabase);
 
 	RegPluginLibrary("store-backend");
 	return APLRes_Success;
@@ -1975,6 +1976,11 @@ public void Native_GiveDifferentCreditsToUsers(Handle plugin, int params)
 }
 
 public void Native_ReloadItemCache(Handle plugin, int params)
-{       
+{
 	ReloadItemCache();
+}
+
+public int Native_GetDatabase(Handle plugin, int params)
+{
+	return CloneHandle(g_hSQL);
 }
