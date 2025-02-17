@@ -5,6 +5,7 @@
 
 #define STORE_VERSION "1.0.0"
 #define STORE_PREFIX "\x04[Store] \x01"
+#define STORE_PREFIX_CONSOLE "[Store] "
 
 #include <store/store-backend>
 #include <store/store-core>
