@@ -3,7 +3,7 @@
 #endif
 #define _store_shop_included
 
-forward Store_OnShopBuyItem(client, itemId, bool:success);
+forward void Store_OnShopBuyItem(int client, int itemId, bool success);
 
 /**
  * Opens the shop menu for a client.
@@ -12,7 +12,7 @@ forward Store_OnShopBuyItem(client, itemId, bool:success);
  *
  * @noreturn
  */
-native Store_OpenShop(client);
+native void Store_OpenShop(int client);
 
 /**
  * Opens the shop menu for a client in a specific category.
@@ -22,9 +22,9 @@ native Store_OpenShop(client);
  *
  * @noreturn
  */
-native Store_OpenShopCategory(client, categoryId);
+native void Store_OpenShopCategory(int client, int categoryId);
 
-public SharedPlugin:__pl_store_shop =
+public SharedPlugin __pl_store_shop =
 {
     name = "store-shop",
     file = "store-shop.smx",
@@ -36,7 +36,7 @@ public SharedPlugin:__pl_store_shop =
 };
 
 #if defined REQUIRE_PLUGIN
-public __pl_store_shop_SetNTVOptional()
+public void __pl_store_shop_SetNTVOptional()
 {
 	MarkNativeAsOptional("Store_OpenShop");  
 	MarkNativeAsOptional("Store_OpenShopCategory");  	

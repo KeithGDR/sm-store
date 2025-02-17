@@ -3,7 +3,7 @@
 #endif
 #define _store_loadout_included
 
-forward Store_OnClientLoadoutChanged(client);
+forward void Store_OnClientLoadoutChanged(int client);
 
 /**
  * Opens the loadout menu for a client.
@@ -12,7 +12,7 @@ forward Store_OnClientLoadoutChanged(client);
  *
  * @noreturn
  */
-native Store_OpenLoadoutMenu(client);
+native void Store_OpenLoadoutMenu(int client);
 
 /**
  * Gets client current loadout.
@@ -21,9 +21,9 @@ native Store_OpenLoadoutMenu(client);
  *
  * @return Loadout index.
  */
-native Store_GetClientLoadout(client);
+native int Store_GetClientLoadout(int client);
 
-public SharedPlugin:__pl_loadout_store =
+public SharedPlugin __pl_loadout_store =
 {
     name = "store-loadout",
     file = "store-loadout.smx",
@@ -35,7 +35,7 @@ public SharedPlugin:__pl_loadout_store =
 };
 
 #if defined REQUIRE_PLUGIN
-public __pl_store_loadout_SetNTVOptional()
+public void __pl_store_loadout_SetNTVOptional()
 {
 	MarkNativeAsOptional("Store_OpenLoadoutMenu");  
 	MarkNativeAsOptional("Store_GetClientLoadout");  

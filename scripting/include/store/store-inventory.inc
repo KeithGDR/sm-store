@@ -20,7 +20,7 @@ typedef Store_ItemUseCallback = function Store_ItemUseAction(int client, int ite
  *
  * @noreturn
  */
-native Store_OpenInventory(client);
+native void Store_OpenInventory(int client);
 
 /**
  * Opens the inventory menu for a client in a specific category.
@@ -30,7 +30,7 @@ native Store_OpenInventory(client);
  *
  * @noreturn
  */
-native Store_OpenInventoryCategory(client, categoryId);
+native void Store_OpenInventoryCategory(int client, int categoryId);
 
 /**
  * Registers an item type. 
@@ -48,7 +48,7 @@ native Store_OpenInventoryCategory(client, categoryId);
  *
  * @noreturn
  */
-native Store_RegisterItemType(const String:type[], Store_ItemUseCallback:useCallback, Store_ItemGetAttributesCallback:attrsCallback = null);
+native void Store_RegisterItemType(const char[] type, Store_ItemUseCallback useCallback, Store_ItemGetAttributesCallback attrsCallback = INVALID_FUNCTION);
 
 /**
  * Determines whether or not a specific item type string is registered.
@@ -57,7 +57,7 @@ native Store_RegisterItemType(const String:type[], Store_ItemUseCallback:useCall
  *
  * @return True if registered, false otherwise.
  */
-native bool:Store_IsItemTypeRegistered(const String:type[]);
+native bool Store_IsItemTypeRegistered(const char[] type);
 
 /**
  * Calls item type's attributes callback.
@@ -71,9 +71,9 @@ native bool:Store_IsItemTypeRegistered(const String:type[]);
  *
  * @return True if successful, false otherwise.
  */
-native bool:Store_CallItemAttrsCallback(const String:type[], const String:itemName[], const String:attrs[]);
+native bool Store_CallItemAttrsCallback(const char[] type, const char[] itemName, const char[] attrs);
 
-public SharedPlugin:__pl_store_inventory =
+public SharedPlugin __pl_store_inventory =
 {
     name = "store-inventory",
     file = "store-inventory.smx",
@@ -85,7 +85,7 @@ public SharedPlugin:__pl_store_inventory =
 };
 
 #if defined REQUIRE_PLUGIN
-public __pl_store_inventory_SetNTVOptional()
+public void __pl_store_inventory_SetNTVOptional()
 {
 	MarkNativeAsOptional("Store_OpenInventory");  
 	MarkNativeAsOptional("Store_OpenInventoryCategory");  	

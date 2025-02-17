@@ -21,7 +21,7 @@ enum Store_LogLevel
  *
  * @return              Current logging level
  */
-native Store_LogLevel:Store_GetLogLevel();
+native Store_LogLevel Store_GetLogLevel();
 
 /**
  * Logs a message to the Store log file. Depending on the log level provided, this is equivalent
@@ -32,7 +32,7 @@ native Store_LogLevel:Store_GetLogLevel();
  * @param ...           Variable number of format parameters.
  * @noreturn
  */
-native Store_Log(Store_LogLevel:log_level, const String:format[] , any:...);
+native void Store_Log(Store_LogLevel log_level, const char[] format , any ...);
 
 /**
  * Logs an error message to the Store log file. Error logs are either fatal unrecoverable errors
@@ -43,7 +43,7 @@ native Store_Log(Store_LogLevel:log_level, const String:format[] , any:...);
  * @param ...           Variable number of format parameters.
  * @noreturn
  */
-native Store_LogError(const String:format[] , any:...);
+native void Store_LogError(const char[] format , any ...);
 
 /**
  * Logs a warning message to the Store log file. Warnings should notify the server operator of
@@ -54,7 +54,7 @@ native Store_LogError(const String:format[] , any:...);
  * @param ...           Variable number of format parameters.
  * @noreturn
  */
-native Store_LogWarning(const String:format[] , any:...);
+native void Store_LogWarning(const char[] format , any ...);
 
 /**
  * Logs an info message to the Store log file. Info messages should enable the server operator
@@ -65,7 +65,7 @@ native Store_LogWarning(const String:format[] , any:...);
  * @param ...           Variable number of format parameters.
  * @noreturn
  */
-native Store_LogInfo(const String:format[] , any:...);
+native void Store_LogInfo(const char[] format, any ...);
 
 /**
  * Logs a debug message to the Store log file. Debug logs are low-level messages primarily used
@@ -77,7 +77,7 @@ native Store_LogInfo(const String:format[] , any:...);
  * @param ...           Variable number of format parameters.
  * @noreturn
  */
-native Store_LogDebug(const String:format[] , any:...);
+native void Store_LogDebug(const char[] format, any ...);
 
 /**
  * Logs a particularly low-level trace message to the Store log file. Trace logs are low-level
@@ -89,9 +89,9 @@ native Store_LogDebug(const String:format[] , any:...);
  * @param ...           Variable number of format parameters.
  * @noreturn
  */
-native Store_LogTrace(const String:format[] , any:...);
+native void Store_LogTrace(const char[] format, any ...);
 
-public SharedPlugin:__pl_store_logging = 
+public SharedPlugin __pl_store_logging = 
 {
 	name = "store-logging",
 	file = "store-logging.smx",
@@ -103,7 +103,7 @@ public SharedPlugin:__pl_store_logging =
 };
 
 #if defined REQUIRE_PLUGIN
-public __pl_store_logging_SetNTVOptional() 
+public void __pl_store_logging_SetNTVOptional() 
 {
 	MarkNativeAsOptional("Store_GetLogLevel");
 	MarkNativeAsOptional("Store_Log");
