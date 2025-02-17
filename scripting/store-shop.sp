@@ -9,9 +9,7 @@ char g_currencyName[64];
 char g_menuCommands[32][32];
 
 bool g_hideEmptyCategories = false;
-
 bool g_confirmItemPurchase = false;
-
 bool g_allowBuyingDuplicates = false;
 
 Handle g_buyItemForward;

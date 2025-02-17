@@ -1,16 +1,26 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#include <sourcemod>
 #include <store>
 
 #define PLUGIN_NAME_RESERVED_LENGTH 33
 
-Handle g_log_file = INVALID_HANDLE;
+Handle g_log_file = null;
 char g_log_level_names[][] = { "     ", "ERROR", "WARN ", "INFO ", "DEBUG", "TRACE" };
 Store_LogLevel g_log_level = Store_LogLevelNone;
 Store_LogLevel g_log_flush_level = Store_LogLevelNone;
 bool g_log_errors_to_SM = false;
 char g_current_date[20];
+
+public Plugin myinfo =
+{
+	name        = "[Store] Logging",
+	author      = "alongub",
+	description = "Logging component for [Store]",
+	version     = STORE_VERSION,
+	url         = "https://github.com/alongubkin/store"
+};
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -27,20 +37,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
-public Plugin myinfo =
-{
-	name        = "[Store] Logging",
-	author      = "alongub",
-	description = "Logging component for [Store]",
-	version     = STORE_VERSION,
-	url         = "https://github.com/alongubkin/store"
-};
-
 public void OnPluginStart() 
 {
 	LoadConfig();
 	FormatTime(g_current_date, sizeof(g_current_date), "%Y-%m-%d", GetTime());
-	CreateTimer(1.0, OnCheckDate, INVALID_HANDLE, TIMER_REPEAT);
+	CreateTimer(1.0, OnCheckDate, _, TIMER_REPEAT);
 	if (g_log_level > Store_LogLevelNone)
 		CreateLogFileOrTurnOffLogging();
 }
@@ -67,7 +68,7 @@ void LoadConfig()
 
 public void OnPluginEnd() 
 {
-	if (g_log_file != INVALID_HANDLE)
+	if (g_log_file != null)
 		CloseLogFile();
 }
 
@@ -80,9 +81,9 @@ public Action OnCheckDate(Handle timer)
     {
 		strcopy(g_current_date, sizeof(g_current_date), new_date);
         
-		if (g_log_file != INVALID_HANDLE) 
+		if (g_log_file != null) 
         {
-			WriteMessageToLog(INVALID_HANDLE, Store_LogLevelInfo, "Date changed; switching log file", true);
+			WriteMessageToLog(null, Store_LogLevelInfo, "Date changed; switching log file", true);
 			CloseLogFile();
 		}
         
@@ -94,10 +95,10 @@ public Action OnCheckDate(Handle timer)
 
 void CloseLogFile() 
 {
-	WriteMessageToLog(INVALID_HANDLE, Store_LogLevelInfo, "Logging stopped");
+	WriteMessageToLog(null, Store_LogLevelInfo, "Logging stopped");
 	FlushFile(g_log_file);
 	CloseHandle(g_log_file);
-	g_log_file = INVALID_HANDLE;
+	g_log_file = null;
 }
 
 bool CreateLogFileOrTurnOffLogging()
@@ -106,7 +107,7 @@ bool CreateLogFileOrTurnOffLogging()
 	int pos = BuildPath(Path_SM, filename, sizeof(filename), "logs/");
 	FormatTime(filename[pos], sizeof(filename)-pos, "store_%Y-%m-%d.log", GetTime());
     
-	if ((g_log_file = OpenFile(filename, "a")) == INVALID_HANDLE) 
+	if ((g_log_file = OpenFile(filename, "a")) == null) 
     {
 		g_log_level = Store_LogLevelNone;
 		LogError("Can't create store log file");
@@ -114,7 +115,7 @@ bool CreateLogFileOrTurnOffLogging()
 	}
 	else 
     {
-		WriteMessageToLog(INVALID_HANDLE, Store_LogLevelInfo, "Logging started", true);
+		WriteMessageToLog(null, Store_LogLevelInfo, "Logging started", true);
 		return true;
 	}
 }
@@ -132,7 +133,7 @@ public void Store_Log_(Handle plugin, int num_params)
 		char message[10000], written;
 		FormatNativeString(0, 2, 3, sizeof(message), written, message);
         
-		if (g_log_file != INVALID_HANDLE)
+		if (g_log_file != null)
 			WriteMessageToLog(plugin, log_level, message);
             
 		if (log_level == Store_LogLevelError && g_log_errors_to_SM) 
@@ -150,7 +151,7 @@ public void Store_LogError_(Handle plugin, int num_params)
 		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
         
-		if (g_log_file != INVALID_HANDLE)
+		if (g_log_file != null)
         {
 			WriteMessageToLog(plugin, Store_LogLevelError, message);
         }
@@ -165,7 +166,7 @@ public void Store_LogError_(Handle plugin, int num_params)
 
 public void Store_LogWarning_(Handle plugin, int num_params) 
 {
-	if (g_log_level >= Store_LogLevelWarning && g_log_file != INVALID_HANDLE) 
+	if (g_log_level >= Store_LogLevelWarning && g_log_file != null) 
     {
 		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
@@ -175,7 +176,7 @@ public void Store_LogWarning_(Handle plugin, int num_params)
 
 public void Store_LogInfo_(Handle plugin, int num_params) 
 {
-	if (g_log_level >= Store_LogLevelInfo && g_log_file != INVALID_HANDLE) 
+	if (g_log_level >= Store_LogLevelInfo && g_log_file != null) 
     {
 		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
@@ -185,7 +186,7 @@ public void Store_LogInfo_(Handle plugin, int num_params)
 
 public void Store_LogDebug_(Handle plugin, int num_params) 
 {
-	if (g_log_level >= Store_LogLevelDebug && g_log_file != INVALID_HANDLE) 
+	if (g_log_level >= Store_LogLevelDebug && g_log_file != null) 
     {
 		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);
@@ -195,7 +196,7 @@ public void Store_LogDebug_(Handle plugin, int num_params)
 
 public void Store_LogTrace_(Handle plugin, int num_params) 
 {
-	if (g_log_level >= Store_LogLevelTrace && g_log_file != INVALID_HANDLE) 
+	if (g_log_level >= Store_LogLevelTrace && g_log_file != null) 
     {
 		char message[10000], written;
 		FormatNativeString(0, 1, 2, sizeof(message), written, message);

@@ -251,7 +251,7 @@ void LoadConfig()
  *
  * @noreturn
  */ 
-void AddMainMenuItem(const char[] displayName, const char[] description = "", const char[] value = "", Handle plugin = INVALID_HANDLE, Function callback, int order = 32)
+void AddMainMenuItem(const char[] displayName, const char[] description = "", const char[] value = "", Handle plugin = null, Function callback, int order = 32)
 {
 	int item;
 	

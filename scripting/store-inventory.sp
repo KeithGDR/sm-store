@@ -514,10 +514,10 @@ public void UseItemCallback(int accountId, int itemId, any pack)
 */
 void RegisterItemType(const char[] type, Handle plugin, Function useCallback, Function attrsCallback = INVALID_FUNCTION)
 {
-	if (g_itemTypes == INVALID_HANDLE)
+	if (g_itemTypes == null)
 		g_itemTypes = CreateArray();
 	
-	if (g_itemTypeNameIndex == INVALID_HANDLE)
+	if (g_itemTypeNameIndex == null)
 	{
 		g_itemTypeNameIndex = CreateTrie();
 	}
@@ -569,7 +569,7 @@ public int Native_IsItemTypeRegistered(Handle plugin, int params)
 
 public int Native_CallItemAttrsCallback(Handle plugin, int params)
 {
-	if (g_itemTypeNameIndex == INVALID_HANDLE)
+	if (g_itemTypeNameIndex == null)
 		return false;
 		
 	char type[STORE_MAX_TYPE_LENGTH];

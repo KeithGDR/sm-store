@@ -4,11 +4,11 @@
 #include <sourcemod>
 #include <clientprefs>
 #include <store>
+
 #undef REQUIRE_EXTENSIONS
 #include <tf2_stocks>
 
-char TF2_ClassName[TFClassType][] = {"", "scout", "sniper", "soldier", "demoman", "medic",
-                                                    "heavy", "pyro", "spy", "engineer" };
+char TF2_ClassName[TFClassType][] = {"", "scout", "sniper", "soldier", "demoman", "medic", "heavy", "pyro", "spy", "engineer" };
 
 Handle g_clientLoadoutChangedForward;
 char g_menuCommands[32][32];
@@ -83,7 +83,7 @@ public void OnMapStart()
 {
 	if (g_databaseInitialized)
 	{
-		Store_GetLoadouts(INVALID_HANDLE, INVALID_FUNCTION, false);
+		Store_GetLoadouts(null, INVALID_FUNCTION, false);
 	}
 }
 
@@ -93,7 +93,7 @@ public void OnMapStart()
 public void Store_OnDatabaseInitialized()
 {
 	g_databaseInitialized = true;
-	Store_GetLoadouts(INVALID_HANDLE, INVALID_FUNCTION, false);
+	Store_GetLoadouts(null, INVALID_FUNCTION, false);
 }
 
 /**

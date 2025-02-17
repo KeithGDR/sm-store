@@ -1,6 +1,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#include <sourcemod>
 #include <store>
 
 #define MAX_CATEGORIES	32
@@ -144,7 +145,7 @@ public void OnAllPluginsLoaded()
 
 public void OnMapStart()
 {
-	if (g_hSQL != INVALID_HANDLE)
+	if (g_hSQL != null)
 	{
 		ReloadItemCache();
 	}
@@ -212,7 +213,7 @@ void RegisterClient(int client, int credits = 0)
 
 public void T_RegisterCallback(Handle owner, Handle hndl, const char[] error, any data)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		Store_LogError("SQL Error on Register: %s", error);
 		return;
@@ -248,7 +249,7 @@ public void T_RegisterCallback(Handle owner, Handle hndl, const char[] error, an
  *
  * @noreturn
  */
-void GetCategories(Function callback = INVALID_FUNCTION, Handle plugin = INVALID_HANDLE, bool loadFromCache = true, any data = 0)
+void GetCategories(Function callback = INVALID_FUNCTION, Handle plugin = null, bool loadFromCache = true, any data = 0)
 {
 	if (loadFromCache && g_categoryCount != -1)
 	{
@@ -283,7 +284,7 @@ void GetCategories(Function callback = INVALID_FUNCTION, Handle plugin = INVALID
 
 public void T_GetCategoriesCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -365,7 +366,7 @@ int GetCategoryIndex(int id)
  *
  * @noreturn
  */
-void GetItems(Handle filter = INVALID_HANDLE, Function callback = INVALID_FUNCTION, Handle plugin = INVALID_HANDLE, bool loadFromCache = true, any data = 0)
+void GetItems(Handle filter = null, Function callback = INVALID_FUNCTION, Handle plugin = null, bool loadFromCache = true, any data = 0)
 {
 	if (loadFromCache && g_itemCount != -1)
 	{
@@ -373,22 +374,22 @@ void GetItems(Handle filter = INVALID_HANDLE, Function callback = INVALID_FUNCTI
 			return;
 
 		int categoryId;
-		bool categoryFilter = filter == INVALID_HANDLE ? false : GetTrieValue(filter, "category_id", categoryId);
+		bool categoryFilter = filter == null ? false : GetTrieValue(filter, "category_id", categoryId);
 		
 		bool isBuyable;
-		bool buyableFilter = filter == INVALID_HANDLE ? false : GetTrieValue(filter, "is_buyable", isBuyable);
+		bool buyableFilter = filter == null ? false : GetTrieValue(filter, "is_buyable", isBuyable);
 
 		bool isTradeable;
-		bool tradeableFilter = filter == INVALID_HANDLE ? false : GetTrieValue(filter, "is_tradeable", isTradeable);
+		bool tradeableFilter = filter == null ? false : GetTrieValue(filter, "is_tradeable", isTradeable);
 
 		bool isRefundable;
-		bool refundableFilter = filter == INVALID_HANDLE ? false : GetTrieValue(filter, "is_refundable", isRefundable);
+		bool refundableFilter = filter == null ? false : GetTrieValue(filter, "is_refundable", isRefundable);
 
 		char type[STORE_MAX_TYPE_LENGTH];
-		bool typeFilter = filter == INVALID_HANDLE ? false : GetTrieString(filter, "type", type, sizeof(type));
+		bool typeFilter = filter == null ? false : GetTrieString(filter, "type", type, sizeof(type));
 
 		int flags;
-		bool flagsFilter = filter == INVALID_HANDLE ? false : GetTrieValue(filter, "flags", flags);
+		bool flagsFilter = filter == null ? false : GetTrieValue(filter, "flags", flags);
 
 		CloseHandle(filter);
 		
@@ -430,7 +431,7 @@ void GetItems(Handle filter = INVALID_HANDLE, Function callback = INVALID_FUNCTI
 
 public void T_GetItemsCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 			
@@ -508,7 +509,7 @@ int GetItemIndex(int id)
  *
  * @noreturn
  */
-void GetItemAttributes(const char[] itemName, Function callback, Handle plugin = INVALID_HANDLE, any data = 0) 
+void GetItemAttributes(const char[] itemName, Function callback, Handle plugin = null, any data = 0) 
 {
 	Handle pack = CreateDataPack();
 	WritePackString(pack, itemName);
@@ -529,7 +530,7 @@ void GetItemAttributes(const char[] itemName, Function callback, Handle plugin =
 
 public void T_GetItemAttributesCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 			
@@ -577,7 +578,7 @@ public void T_GetItemAttributesCallback(Handle owner, Handle hndl, const char[] 
  *
  * @noreturn
  */
-void WriteItemAttributes(const char[] itemName, const char[] attrs, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void WriteItemAttributes(const char[] itemName, const char[] attrs, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackFunction(pack, callback);
@@ -600,7 +601,7 @@ void WriteItemAttributes(const char[] itemName, const char[] attrs, Function cal
 
 public void T_WriteItemAttributesCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 			
@@ -661,7 +662,7 @@ public void T_WriteItemAttributesCallback(Handle owner, Handle hndl, const char[
  *
  * @noreturn
  */
-void GetLoadouts(Handle filter, Function callback = INVALID_FUNCTION, Handle plugin = INVALID_HANDLE, bool loadFromCache = true, any data = 0)
+void GetLoadouts(Handle filter, Function callback = INVALID_FUNCTION, Handle plugin = null, bool loadFromCache = true, any data = 0)
 {
 	if (loadFromCache && g_loadoutCount != -1)
 	{
@@ -672,13 +673,13 @@ void GetLoadouts(Handle filter, Function callback = INVALID_FUNCTION, Handle plu
 		int count = 0;
 		
 		char game[32];
-		bool gameFilter = filter == INVALID_HANDLE ? false : GetTrieString(filter, "game", game, sizeof(game));
+		bool gameFilter = filter == null ? false : GetTrieString(filter, "game", game, sizeof(game));
 		
 		char class[32];
-		bool classFilter = filter == INVALID_HANDLE ? false : GetTrieString(filter, "class", class, sizeof(class));
+		bool classFilter = filter == null ? false : GetTrieString(filter, "class", class, sizeof(class));
 		
 		// int team = -1;
-		// bool teamFilter = filter == INVALID_HANDLE ? false : GetTrieValue(filter, "team", team);
+		// bool teamFilter = filter == null ? false : GetTrieValue(filter, "team", team);
 		
 		CloseHandle(filter);
 		
@@ -715,7 +716,7 @@ void GetLoadouts(Handle filter, Function callback = INVALID_FUNCTION, Handle plu
 
 public void T_GetLoadoutsCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -804,7 +805,7 @@ int GetLoadoutIndex(int id)
  *
  * @noreturn
  */
-void GetUserItems(Handle filter, int accountId, int loadoutId, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void GetUserItems(Handle filter, int accountId, int loadoutId, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, filter); // 0 
@@ -817,7 +818,7 @@ void GetUserItems(Handle filter, int accountId, int loadoutId, Function callback
 	if (g_itemCount == -1)
 	{
 		Store_LogWarning("Store_GetUserItems has been called before item loading.");
-		GetItems(INVALID_HANDLE, GetUserItemsLoadCallback, INVALID_HANDLE, true, pack);
+		GetItems(null, GetUserItemsLoadCallback, null, true, pack);
 		
 		return;
 	}
@@ -877,7 +878,7 @@ public void GetUserItemsLoadCallback(int[] ids, int count, any pack)
 
 public void T_GetUserItemsCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -933,7 +934,7 @@ public void T_GetUserItemsCallback(Handle owner, Handle hndl, const char[] error
  *
  * @noreturn
  */
-void GetUserItemCount(int accountId, const char[] itemName, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void GetUserItemCount(int accountId, const char[] itemName, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackFunction(pack, callback);
@@ -953,7 +954,7 @@ void GetUserItemCount(int accountId, const char[] itemName, Function callback, H
 
 public void T_GetUserItemCountCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -990,7 +991,7 @@ public void T_GetUserItemCountCallback(Handle owner, Handle hndl, const char[] e
  *
  * @noreturn
  */
-void GetCredits(int accountId, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void GetCredits(int accountId, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackFunction(pack, callback);
@@ -1005,7 +1006,7 @@ void GetCredits(int accountId, Function callback, Handle plugin = INVALID_HANDLE
 
 public void T_GetCreditsCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -1047,7 +1048,7 @@ public void T_GetCreditsCallback(Handle owner, Handle hndl, const char[] error, 
  *
  * @noreturn
  */
-void BuyItem(int accountId, int itemId, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void BuyItem(int accountId, int itemId, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, itemId); // 0
@@ -1056,7 +1057,7 @@ void BuyItem(int accountId, int itemId, Function callback, Handle plugin = INVAL
 	WritePackCell(pack, plugin); // 24
 	WritePackCell(pack, data); // 32
 	
-	GetCredits(accountId, T_BuyItemGetCreditsCallback, INVALID_HANDLE, pack);
+	GetCredits(accountId, T_BuyItemGetCreditsCallback, null, pack);
 }
 
 public void T_BuyItemGetCreditsCallback(int credits, any pack)
@@ -1119,7 +1120,7 @@ public void BuyItemGiveItemCallback(int accountId, any pack)
  *
  * @noreturn
  */
-void RemoveUserItem(int accountId, int itemId, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void RemoveUserItem(int accountId, int itemId, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, accountId); // 0
@@ -1141,7 +1142,7 @@ public void RemoveUserItemUnnequipCallback(int accountId, int itemId, int loadou
 
 public void T_RemoveUserItemCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -1180,7 +1181,7 @@ public void T_RemoveUserItemCallback(Handle owner, Handle hndl, const char[] err
  *
  * @noreturn
  */
-void SetItemEquippedState(int accountId, int itemId, int loadoutId, bool isEquipped, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void SetItemEquippedState(int accountId, int itemId, int loadoutId, bool isEquipped, Function callback, Handle plugin = null, any data = 0)
 {
 	if (isEquipped)
 	{
@@ -1206,7 +1207,7 @@ void SetItemEquippedState(int accountId, int itemId, int loadoutId, bool isEquip
  *
  * @noreturn
  */
-void EquipItem(int accountId, int itemId, int loadoutId, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void EquipItem(int accountId, int itemId, int loadoutId, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, accountId);
@@ -1229,7 +1230,7 @@ public void EquipUnequipItemCallback(int accountId, int itemId, int loadoutId, a
 
 public void T_EquipItemCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -1272,7 +1273,7 @@ public void T_EquipItemCallback(Handle owner, Handle hndl, const char[] error, a
  *
  * @noreturn
  */
-void UnequipItem(int accountId, int itemId, int loadoutId, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void UnequipItem(int accountId, int itemId, int loadoutId, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, accountId);
@@ -1295,7 +1296,7 @@ void UnequipItem(int accountId, int itemId, int loadoutId, Function callback, Ha
 
 public void T_UnequipItemCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -1352,7 +1353,7 @@ public void T_UnequipItemCallback(Handle owner, Handle hndl, const char[] error,
  *
  * @noreturn
  */
-void GetEquippedItemsByType(int accountId, const char[] type, int loadoutId, Function callback, Handle plugin = INVALID_HANDLE, any data = 0)
+void GetEquippedItemsByType(int accountId, const char[] type, int loadoutId, Function callback, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackFunction(pack, callback);
@@ -1367,7 +1368,7 @@ void GetEquippedItemsByType(int accountId, const char[] type, int loadoutId, Fun
 
 public void T_GetEquippedItemsByTypeCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -1416,7 +1417,7 @@ public void T_GetEquippedItemsByTypeCallback(Handle owner, Handle hndl, const ch
  *
  * @noreturn
  */
-void GiveCredits(int accountId, int credits, Function callback = INVALID_FUNCTION, Handle plugin = INVALID_HANDLE, any data = 0)
+void GiveCredits(int accountId, int credits, Function callback = INVALID_FUNCTION, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, accountId);
@@ -1432,7 +1433,7 @@ void GiveCredits(int accountId, int credits, Function callback = INVALID_FUNCTIO
 
 public void T_GiveCreditsCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -1472,7 +1473,7 @@ public void T_GiveCreditsCallback(Handle owner, Handle hndl, const char[] error,
  *
  * @noreturn
  */
-void GiveItem(int accountId, int itemId, Store_AcquireMethod acquireMethod = Store_Unknown, Function callback = INVALID_FUNCTION, Handle plugin = INVALID_HANDLE, any data = 0)
+void GiveItem(int accountId, int itemId, Store_AcquireMethod acquireMethod = Store_Unknown, Function callback = INVALID_FUNCTION, Handle plugin = null, any data = 0)
 {
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, accountId);
@@ -1503,7 +1504,7 @@ void GiveItem(int accountId, int itemId, Store_AcquireMethod acquireMethod = Sto
 
 public void T_GiveItemCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		CloseHandle(pack);
 		
@@ -1566,7 +1567,7 @@ void GiveCreditsToUsers(int[] accountIds, int accountIdsLength, int credits)
 
 public void T_GiveCreditsToUsersCallback(Handle owner, Handle hndl, const char[] error, any data)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		Store_LogError("SQL Error on GiveCreditsToUsers: %s", error);
 		return;
@@ -1617,7 +1618,7 @@ void GiveDifferentCreditsToUsers(int[] accountIds, int accountIdsLength, int[] c
 
 public void T_GiveDifferentCreditsToUsersCallback(Handle owner, Handle hndl, const char[] error, any data)
 {
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		Store_LogError("SQL Error on GiveDifferentCreditsToUsers: %s", error);
 		return;
@@ -1638,10 +1639,10 @@ void ReloadItemCache()
 
 void ConnectSQL()
 {
-	if (g_hSQL != INVALID_HANDLE)
+	if (g_hSQL != null)
 		CloseHandle(g_hSQL);
 	
-	g_hSQL = INVALID_HANDLE;
+	g_hSQL = null;
 
 	if (SQL_CheckConfig("store"))
 	{
@@ -1661,7 +1662,7 @@ public void T_ConnectSQLCallback(Handle owner, Handle hndl, const char[] error, 
 		return;
 	}
 
-	if (hndl == INVALID_HANDLE)
+	if (hndl == null)
 	{
 		Store_LogError("Connection to SQL database has failed, Reason: %s", error);
 		
