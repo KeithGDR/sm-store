@@ -1,4 +1,4 @@
-![store](http://alongubkin.github.com/store/logo.png "store")
+![store](https://github.com/KeithGDR/sm-store/blob/master/logo.png "store")
 
 ## Description
 An open store plugin for SourceMod. 
