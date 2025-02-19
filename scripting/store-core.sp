@@ -65,7 +65,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
  */
 public void OnPluginStart()
 {
-	CreateConVar("store_version", STORE_VERSION, "Store Version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
+	CreateConVar("sm_store_version", STORE_VERSION, "Store Version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 
 	LoadConfig();
 	
