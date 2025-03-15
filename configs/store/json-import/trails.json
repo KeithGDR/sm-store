@@ -3069,7 +3069,7 @@
                     "name": "trail_triforce",
                     "display_name": "Triforce",
                     "description": null,
-                    "tpe": "trails",
+                    "type": "trails",
                     "loadout_slot": "trails",
                     "price": "300",
                     "attrs": {

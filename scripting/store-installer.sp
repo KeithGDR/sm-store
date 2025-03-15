@@ -1,5 +1,6 @@
 #pragma semicolon 1
 #pragma newdecls required
+#pragma dynamic 524288
 
 #include <sourcemod>
 #include <colorlib>
@@ -140,7 +141,7 @@ void StartInstallation(int client = 0) {
 public void OnCheckExistingInstall(Handle db, Handle results, const char[] error, any data) {
 	int client = data;
 	
-	if (SQL_HasResultSet(results)) {
+	if (SQL_HasResultSet(results) && SQL_GetRowCount(results) > 0) {
 		Store_PrintToChat(client, "Tables found, would you like to clear them? - (yes, no)");
 		g_ClearTables[client] = true;
 	} else {
@@ -262,13 +263,13 @@ public void OnSuccess(Database db, any data, int numQueries, Handle[] results, a
 
 public void OnFailure(Database db, any data, int numQueries, const char[] error, int failIndex, any[] queryData) {
 	int client = data;
-	PrintToChat(client, "Error while clearing table %i/%i: %s", failIndex, numQueries, error);
+	Store_PrintToChat(client, "Error while clearing table %i/%i: %s", failIndex, numQueries, error);
 	EndInstallation(client);
 }
 
 void ImportItemsData(Handle db, int client = 0) {
 	char file[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, file, sizeof(file), "configs/stores/json-import/");
+	BuildPath(Path_SM, file, sizeof(file), "configs/store/json-import/");
 
 	DirectoryListing dir = OpenDirectory(file);
 
@@ -353,7 +354,6 @@ void ImportItemsConfig(const char[] config, Handle db, int client = 0) {
 public void OnSuccess2(Database db, any data, int numQueries, Handle[] results, any[] queryData) {
 	JSON_Object categories = view_as<JSON_Object>(data);	
 	categories.Cleanup();
-	CloseHandle(categories);
 
 	char query[4096];
 	Transaction trans = SQL_CreateTransaction();
@@ -363,7 +363,7 @@ public void OnSuccess2(Database db, any data, int numQueries, Handle[] results, 
 		JSON_Array items = view_as<JSON_Array>(queryData[i]);
 
 		for (int x = 0; x < items.Length; x++) {
-			JSON_Object item = items.GetObject(i);
+			JSON_Object item = items.GetObject(x);
 
 			char name[64];
 			item.GetString("name", name, sizeof(name));
@@ -379,28 +379,41 @@ public void OnSuccess2(Database db, any data, int numQueries, Handle[] results, 
 
 			char loadout_slot[64];
 			item.GetString("loadout_slot", loadout_slot, sizeof(loadout_slot));
-
-			int price = item.GetInt("price");
+			
+			char price[16];
+			item.GetString("price", price, sizeof(price));
+			//int price = item.GetInt("price");
 
 			JSON_Object attrs = item.GetObject("attrs");
 
-			char sattrs[512];
-			attrs.Encode(sattrs, sizeof(sattrs));
+			int size = json_encode_size(attrs);
+			char[] buffer = new char[size];
+			json_encode(attrs, buffer, size);
 
-			bool is_buyable = item.GetBool("is_buyable");
-			bool is_tradeable = item.GetBool("is_tradeable");
-			bool is_refundable = item.GetBool("is_refundable");
+			char is_buyable[16];
+			item.GetString("is_buyable", is_buyable, sizeof(is_buyable));
+			//bool is_buyable = item.GetBool("is_buyable");
+
+			char is_tradeable[16];
+			item.GetString("is_tradeable", is_tradeable, sizeof(is_tradeable));
+			//bool is_tradeable = item.GetBool("is_tradeable");
+
+			char is_refundable[16];
+			item.GetString("is_refundable", is_refundable, sizeof(is_refundable));
+			//bool is_refundable = item.GetBool("is_refundable");
+
+			//char expiry_time[16];
+			//item.GetString("expiry_time", expiry_time, sizeof(expiry_time));
 			int expiry_time = item.GetInt("expiry_time");
 
 			char flags[64];
 			item.GetString("flags", flags, sizeof(flags));
 
-			FormatEx(query, sizeof(query), "INSERT INTO `store_items` (name, display_name, description, type, loadout_slot, price, category_id, attrs, is_buyable, is_tradeable, is_refundable, expiry_time, flags) VALUES ('%s', '%s', '%s', '%s', '%s', '%i', '%i', '%s', '%i', '%i', '%i', '%i', '%s');", name, display_name, description, type, loadout_slot, price, category_id, attrs, is_buyable, is_tradeable, is_refundable, expiry_time, flags);
+			FormatEx(query, sizeof(query), "INSERT INTO `store_items` (name, display_name, description, type, loadout_slot, price, category_id, attrs, is_buyable, is_tradeable, is_refundable, expiry_time, flags) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%i', '%s', '%s', '%s', '%s', '%i', '%s');", name, display_name, description, type, loadout_slot, price, category_id, buffer, is_buyable, is_tradeable, is_refundable, expiry_time, flags);
 			trans.AddQuery(query);
 		}
 
 		items.Cleanup();
-		CloseHandle(items);
 	}
 
 	SQL_ExecuteTransaction(db, trans, OnSuccess3, OnFailure3);
@@ -409,15 +422,17 @@ public void OnSuccess2(Database db, any data, int numQueries, Handle[] results, 
 public void OnFailure2(Database db, any data, int numQueries, const char[] error, int failIndex, any[] queryData) {
 	JSON_Object categories = view_as<JSON_Object>(data);	
 	categories.Cleanup();
-	CloseHandle(categories);
 }
 
-public void OnSuccess3(Database db, any data, int numQueries, Handle[] results, any[] queryData) {
+public void OnSuccess3(Database db, any data, int numQueries, Handle[] results, any[] queryData)
+{
 
 }
 
 public void OnFailure3(Database db, any data, int numQueries, const char[] error, int failIndex, any[] queryData) {
-
+	int client = data;
+	Store_PrintToChat(client, "Error while installing items %i/%i: %s", failIndex, numQueries, error);
+	EndInstallation(client);
 }
 
 void EndInstallation(int client = 0, bool success = false) {
