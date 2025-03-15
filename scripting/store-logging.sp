@@ -219,14 +219,19 @@ void PrepareLogLine(Handle plugin, Store_LogLevel log_level, const char[] messag
 {
 	char plugin_name[100];
 	GetPluginFilename(plugin, plugin_name, sizeof(plugin_name)-1);
+
 	// Make windows consistent with unix
 	ReplaceString(plugin_name, sizeof(plugin_name), "\\", "/");
-	int name_end = size;
+
+	int name_end = strlen(plugin_name);
 	plugin_name[name_end++] = ']';
+
 	for (int end=PLUGIN_NAME_RESERVED_LENGTH-1; name_end<end; ++name_end)
 		plugin_name[name_end] = ' ';
+	
 	plugin_name[name_end++] = 0;
 	FormatTime(log_line, size, "%Y-%m-%d %H:%M:%S [", GetTime());
+
 	int pos = strlen(log_line);
 	pos += strcopy(log_line[pos], size-pos, plugin_name);
 	log_line[pos++] = ' ';
