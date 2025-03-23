@@ -584,7 +584,9 @@ public int Native_CallItemAttrsCallback(Handle plugin, int params)
 	GetNativeString(2, name, sizeof(name));
 
 	char attrs[STORE_MAX_ATTRIBUTES_LENGTH];
-	GetNativeString(3, attrs, sizeof(attrs));		
+	GetNativeString(3, attrs, sizeof(attrs));
+
+	PrintToServer("[DB] %s - %s - %s", type, name, attrs);		
 
 	Handle pack = GetArrayCell(g_itemTypes, typeIndex);
 	ResetPack(pack);
